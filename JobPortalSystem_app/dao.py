@@ -3,12 +3,11 @@ import json
 
 def check_user(username, password):
     try:
-        # Dùng path tuyệt đối dựa vào workspace gốc (Jenkins chạy từ đó)
+        # Đường dẫn mặc định dùng cho Jenkins
         data_path = os.path.join("JobPortalSystem_app", "data", "data.json")
 
-        # Kiểm tra tồn tại
+        # Nếu không tồn tại, dùng fallback (khi chạy local)
         if not os.path.exists(data_path):
-            # fallback nếu đang chạy trong PyCharm (dao.py nội bộ gọi)
             current_dir = os.path.dirname(__file__)
             data_path = os.path.join(current_dir, "data", "data.json")
 
@@ -18,7 +17,8 @@ def check_user(username, password):
             users = json.load(f)
 
         for u in users:
-            if u["username"] == username and str(u["password"]) == str(password):
+            # So sánh đúng kiểu: username là str, password là int
+            if u["username"] == username and u["password"] == password:
                 return True
         return False
     except Exception as e:
