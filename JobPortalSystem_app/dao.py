@@ -1,16 +1,16 @@
+# dao.py
 import json
-
+import os
 
 def check_user(username, password):
-    with open("data/data.json", encoding="utf-8") as f:
+    # Lấy đường dẫn tuyệt đối tới data.json
+    current_dir = os.path.dirname(__file__)
+    data_path = os.path.join(current_dir, "data", "data.json")
+
+    with open(data_path, encoding="utf-8") as f:
         users = json.load(f)
 
-        for u in users:
-            if u["username"] == username and u["password"] == password:
-                return True
-
+    for u in users:
+        if u["username"] == username and str(u["password"]) == str(password):
+            return True
     return False
-
-#Test check_user
-# if __name__ == '__main__':
-#     print(check_user("admin", 133))
