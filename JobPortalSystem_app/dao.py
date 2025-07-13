@@ -2,7 +2,7 @@ import json
 
 
 def check_user(username, password):
-    with open("data/data.json", encoding="utf-8") as f:
+    with open("../data/data.json", encoding="utf-8") as f:
         users = json.load(f)
 
         for u in users:
