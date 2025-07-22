@@ -1,9 +1,18 @@
+from random import choices
+
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from enum import Enum
 from cloudinary.models import CloudinaryField
 
 db = SQLAlchemy()
+
+class RoleEnum(Enum):
+    ADMIN = 'admin'
+    RECRUITER = 'recruiter'
+    CANDIDATE = 'candidate'
+
+    CHOICES = [ADMIN, RECRUITER, CANDIDATE]
 
 class BaseModel(db.Model):
     __abstract__ = True
@@ -20,8 +29,8 @@ class User(db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(10), nullable=False)  # 'admin', 'recruiter', 'candidate'
-    avatar = db.Column(db.String(255))  # lưu URL Cloudinary
+    role = db.Column(db.Enum(RoleEnum), nullable=False)
+    avatar = db.Column(db.String(255))
 
     # Relationships
     company = db.relationship("Company", uselist=False, backref="user")
@@ -31,7 +40,7 @@ class User(db.Model):
     received_reviews = db.relationship("Review", backref="reviewed_user", lazy=True, foreign_keys='Review.reviewed_user_id')
     verification_document = db.relationship("VerificationDocument", uselist=False, backref="user")
 
-#Công ty
+#Công ty doanh nghiệp
 class Company(BaseModel):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
     name = db.Column(db.String(255), nullable=False)
@@ -42,12 +51,12 @@ class Company(BaseModel):
 
     images = db.relationship("CompanyImage", backref="company", lazy=True)
 
-#Ảnh Công ty
+#Ảnh Công ty doanh nghiệp
 class CompanyImage(BaseModel):
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
     image = db.Column(db.String(255))  # URL Cloudinary
 
-
+#Tin tuyển dụng
 class JobPost(BaseModel):
     recruiter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(255), nullable=False)
@@ -59,7 +68,7 @@ class JobPost(BaseModel):
 
     applications = db.relationship("Application", backref="job", lazy=True)
 
-
+#Đơn ứng tuyển
 class Application(BaseModel):
     applicant_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     job_id = db.Column(db.Integer, db.ForeignKey('job_post.id'), nullable=False)
@@ -68,27 +77,27 @@ class Application(BaseModel):
 
     __table_args__ = (db.UniqueConstraint('applicant_id', 'job_id', name='_applicant_job_uc'),)
 
-
+#Theo dõi nhà tuyển dụng
 class Follow(BaseModel):
     follower_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     recruiter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     __table_args__ = (db.UniqueConstraint('follower_id', 'recruiter_id', name='_follower_recruiter_uc'),)
 
-
+#Đánh giá
 class Review(BaseModel):
     reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reviewed_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     rating = db.Column(db.Integer)  # 1–5
     comment = db.Column(db.Text)
 
-
+#Trạng thái xác minh
 class VerificationStatusEnum(Enum):
     pending = "pending"
     approved = "approved"
     rejected = "rejected"
 
-
+#Giấy tờ xác thực
 class VerificationDocument(BaseModel):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
     document = db.Column(db.String(255))  # file path or URL
