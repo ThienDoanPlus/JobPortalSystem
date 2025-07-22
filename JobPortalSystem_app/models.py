@@ -15,6 +15,12 @@ class VerificationStatusEnum(Enum):
     APPROVED = 'approved'
     REJECTED = 'rejected'
 
+class PaymentStatusEnum(Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    REFUNDED = "refunded"
+
 class BaseModel(db.Model):
     __abstract__ = True
     id = db.Column(db.Integer, primary_key=True)
@@ -47,6 +53,8 @@ class Company(BaseModel):
 
     images = db.relationship("CompanyImage", backref="company", lazy=True)
     recruiters = db.relationship("Recruiter", backref="company", lazy=True)
+    followers = db.relationship("Follow", backref="company", lazy=True)
+    reviews = db.relationship("Review", backref="company", lazy=True)
 
 class CompanyImage(BaseModel):
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
@@ -82,6 +90,14 @@ class JobPost(BaseModel):
     location = db.Column(db.String(255))
 
     applications = db.relationship("Application", backref="job_post", lazy=True)
+    payment = db.relationship("Payment", backref="job_post", uselist=False, lazy=True, cascade="all, delete-orphan", primaryjoin="JobPost.id == Payment.id")
+
+class Payment(BaseModel):
+    id = db.Column(db.Integer, db.ForeignKey('job_post.id', ondelete='CASCADE'), primary_key=True)
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
+    payment_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    status = db.Column(db.Enum(PaymentStatusEnum), default=PaymentStatusEnum.PENDING, nullable=False)
+    transaction_id = db.Column(db.String(255), unique=True, nullable=True)
 
 class Application(BaseModel):
     candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'), nullable=False)
