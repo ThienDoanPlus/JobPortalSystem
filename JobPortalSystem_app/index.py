@@ -1,19 +1,14 @@
-from flask import Flask
-from models import db
-import models
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Admin%40123@localhost/jobportal'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+from flask import Blueprint, render_template
 
-db.init_app(app)
+index_bp = Blueprint('main', __name__)
 
-@app.route('/')
-def index():
-    return "<h1>Welcome to Job Portal System!!!</h1>"
+@index_bp.route('/')
+def home():
+    return render_template('index.html')
 
-with app.app_context():
-    db.create_all()
+# Thêm một route ví dụ khác
+@index_bp.route('/about')
+def about():
+    return "<h1>Đây là trang giới thiệu</h1>"
 
-if __name__ == '__main__':
-    app.run(debug=True, port=2004)
