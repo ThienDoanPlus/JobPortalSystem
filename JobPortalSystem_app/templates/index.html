@@ -1,16 +1,35 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Job Portal System </title>
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/style.css') }}"/>
-</head>
-<body>
-    <h1>Welcome to {{user.first_name}}
-                    {{user.last_name}}!</h1>
+<!-- /templates/index.html -->
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Tìm việc làm nhanh 24h, việc làm mới nhất trên toàn quốc{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <h1>Tìm việc làm nhanh 24h, việc làm mới nhất trên toàn quốc</h1>
+            <p>Tiếp cận 60.000+ tin tuyển dụng việc làm mới mỗi ngày từ hàng nghìn doanh nghiệp uy tín tại Việt Nam</p>
+
+            <div class="search-bar">
+                <div class="search-input">
+                    <i class="fas fa-briefcase"></i>
+                    <input type="text" placeholder="Vị trí tuyển dụng, tên công ty">
+                </div>
+                <div class="search-input">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" placeholder="Địa điểm">
+                </div>
+                <button class="btn btn-primary search-btn">
+                    <i class="fas fa-search"></i> Tìm kiếm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phần nội dung còn lại của trang chủ sẽ ở đây -->
+    <div class="container" style="padding-top: 40px;">
+        <h2>Việc làm tốt nhất</h2>
+        <!-- (Các card việc làm sẽ được thêm vào đây sau) -->
+        <p>Nội dung các công việc nổi bật...</p>
+    </div>
+{% endblock %}

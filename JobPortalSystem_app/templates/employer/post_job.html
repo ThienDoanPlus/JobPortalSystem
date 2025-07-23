@@ -1,0 +1,67 @@
+<!-- /templates/employer/post_job.html -->
+{% extends "base.html" %}
+
+{% block title %}Đăng Tin Tuyển Dụng Mới{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Thông Tin Tin Tuyển Dụng</h2>
+    </div>
+    <form method="post">
+        <div class="form-group">
+            <label for="title">Chức danh tuyển dụng</label>
+            <input type="text" name="title" id="title" class="form-control" required placeholder="Ví dụ: Lập trình viên Python (Senior)">
+        </div>
+
+        <div class="form-group">
+            <label for="job_type">Loại hình công việc</label>
+            <select name="job_type" id="job_type" class="form-control" required>
+                <!-- Enums giúp chuẩn hóa dữ liệu -->
+                {% for type in job_types %}
+                    <option value="{{ type.name }}">{{ type.value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="experience_level">Cấp bậc</label>
+            <select name="experience_level" id="experience_level" class="form-control" required>
+                {% for level in experience_levels %}
+                    <option value="{{ level.name }}">{{ level.value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="location">Địa điểm làm việc</label>
+            <input type="text" name="location" id="location" class="form-control" required placeholder="Ví dụ: Quận 1, TP. Hồ Chí Minh">
+        </div>
+
+        <div class="form-group">
+            <label>Mức lương (để trống nếu muốn hiển thị "Thỏa thuận")</label>
+            <div style="display: flex; gap: 20px;">
+                <input type="number" name="salary_min" class="form-control" placeholder="Tối thiểu (VNĐ)">
+                <input type="number" name="salary_max" class="form-control" placeholder="Tối đa (VNĐ)">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Mô tả công việc</label>
+            <textarea name="description" id="description" rows="8" class="form-control"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="requirements">Yêu cầu ứng viên</label>
+            <textarea name="requirements" id="requirements" rows="6" class="form-control"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="benefits">Quyền lợi</label>
+            <textarea name="benefits" id="benefits" rows="6" class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Đăng tin</button>
+    </form>
+</div>
+{% endblock %}

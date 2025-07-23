@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Tạo Tài Khoản Mới{% endblock %}
+
+{% block content %}
+<div class="card auth-card">
+    <div class="card-header">
+        <h2>Tạo Tài Khoản Mới</h2>
+        <p class="card-subtitle">Bắt đầu hành trình sự nghiệp của bạn ngay hôm nay</p>
+    </div>
+
+    <form action="{{ url_for('auth.register') }}" method="post">
+        <div class="form-group">
+            <label>Bạn là:</label>
+            <div class="role-selector">
+                <div class="role-option">
+                    <input type="radio" id="role_candidate" name="role" value="candidate" checked onchange="toggleFields()">
+                    <label for="role_candidate">Ứng viên tìm việc</label>
+                </div>
+                <div class="role-option">
+                    <input type="radio" id="role_recruiter" name="role" value="recruiter" onchange="toggleFields()">
+                    <label for="role_recruiter">Nhà tuyển dụng</label>
+                </div>
+            </div>
+        </div>
+
+        <div id="candidate_fields">
+            <div class="form-group">
+                <label for="full_name">Họ và tên:</label>
+                <input type="text" id="full_name" name="full_name" class="form-control">
+            </div>
+        </div>
+
+        <div id="recruiter_fields" style="display: none;">
+            <div class="form-group">
+                <label for="company_name">Tên công ty:</label>
+                <input type="text" id="company_name" name="company_name" class="form-control">
+            </div>
+        </div>
+
+        <hr style="margin: 20px 0;">
+
+        <div class="form-group">
+            <label for="username">Tên đăng nhập:</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Mật khẩu:</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Đăng ký</button>
+    </form>
+</div>
+
+<div class="form-footer-link">
+    <p>Đã có tài khoản? <a href="{{ url_for('auth.login') }}">Đăng nhập ngay</a></p>
+</div>
+
+<script>
+    function toggleFields() {
+        if (document.getElementById('role_recruiter').checked) {
+            document.getElementById('recruiter_fields').style.display = 'block';
+            document.getElementById('company_name').required = true;
+            document.getElementById('candidate_fields').style.display = 'none';
+            document.getElementById('full_name').required = false;
+        } else {
+            document.getElementById('recruiter_fields').style.display = 'none';
+            document.getElementById('company_name').required = false;
+            document.getElementById('candidate_fields').style.display = 'block';
+            document.getElementById('full_name').required = true;
+        }
+    }
+    document.addEventListener('DOMContentLoaded', toggleFields);
+</script>
+{% endblock %}

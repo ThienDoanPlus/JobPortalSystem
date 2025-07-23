@@ -1,0 +1,107 @@
+<!-- /templates/cv_edit.html -->
+{% extends "base.html" %}
+
+{% block title %}Chỉnh sửa CV: {{ cv.title }}{% endblock %}
+
+{% block content %}
+<div class="edit-cv-header">
+    <div>
+        <h2>Chỉnh sửa CV: <em>{{ cv.title }}</em></h2>
+        <a href="{{ url_for('candidate.manage_cvs') }}">← Quay lại danh sách CV</a>
+    </div>
+    <a href="{{ url_for('candidate.preview_cv', cv_id=cv.id) }}" class="btn btn-primary" target="_blank">
+        <i class="fas fa-eye"></i> Xem trước toàn trang
+    </a></div>
+
+<!-- Layout 2 cột chính -->
+<div class="edit-cv-layout">
+    <!-- ===  PANEL CHỈNH SỬA === -->
+    <div class="edit-panel">
+        <!-- Card để thêm Kinh nghiệm -->
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-briefcase"></i> Thêm Kinh nghiệm làm việc</h4>
+            </div>
+            <form method="post">
+                <div class="form-group">
+                    <label for="job_title">Chức danh:</label>
+                    <input type="text" id="job_title" name="job_title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="company_name">Tên công ty:</label>
+                    <input type="text" id="company_name" name="company_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Mô tả công việc:</label>
+                    <textarea id="description" name="description" rows="4" class="form-control"></textarea>
+                </div>
+                <button type="submit" name="action" value="add_experience" class="btn btn-primary">Thêm kinh nghiệm</button>
+            </form>
+        </div>
+
+        <!-- Card để thêm Học vấn -->
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-graduation-cap"></i> Thêm Học vấn</h4>
+            </div>
+            <form method="post">
+                <div class="form-group">
+                    <label for="institution_name">Tên trường/cơ sở đào tạo:</label>
+                    <input type="text" id="institution_name" name="institution_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="degree">Bằng cấp (VD: Cử nhân, Kỹ sư):</label>
+                    <input type="text" id="degree" name="degree" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="major">Chuyên ngành:</label>
+                    <input type="text" id="major" name="major" class="form-control">
+                </div>
+                <button type="submit" name="action" value="add_education" class="btn btn-primary">Thêm học vấn</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===  PANEL XEM TRƯỚC === -->
+    <div class="preview-panel">
+        <div class="cv-preview-sheet">
+            <div class="cv-header">
+                <h3>{{ current_user.candidate_profile.full_name }}</h3>
+                <p>{{ cv.title }}</p>
+            </div>
+
+            <!-- Phần xem trước Kinh nghiệm -->
+            <div class="cv-section">
+                <h4>KINH NGHIỆM LÀM VIỆC</h4>
+                {% if experiences %}
+                    {% for exp in experiences %}
+                    <div class="cv-item">
+                        <div class="cv-item-title">{{ exp.job_title }}</div>
+                        <div class="cv-item-subtitle">{{ exp.company_name }}</div>
+                        <div class="cv-item-description">{{ exp.description }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="cv-empty-section">Thêm kinh nghiệm của bạn ở form bên trái.</p>
+                {% endif %}
+            </div>
+
+            <!-- Phần xem trước Học vấn -->
+            <div class="cv-section">
+                <h4>HỌC VẤN</h4>
+                {% if educations %}
+                    {% for edu in educations %}
+                    <div class="cv-item">
+                        <div class="cv-item-title">{{ edu.degree }} - {{ edu.major }}</div>
+                        <div class="cv-item-subtitle">{{ edu.institution_name }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                     <p class="cv-empty-section">Thêm thông tin học vấn của bạn ở form bên trái.</p>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
