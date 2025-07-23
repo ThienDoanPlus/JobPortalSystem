@@ -1,0 +1,27 @@
+<!-- /templates/cv_create.html -->
+{% extends "base.html" %}
+
+{% block title %}Tạo CV Mới{% endblock %}
+
+{% block content %}
+<div class="card auth-card">
+    <div class="card-header">
+        <h2>Tạo một Hồ sơ (CV) mới</h2>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">Tiêu đề CV:</label>
+            <input type="text" id="title" name="title" class="form-control"
+                   placeholder="Ví dụ: CV ứng tuyển Lập trình viên Python" required>
+        </div>
+
+        <!-- TRƯỜNG UPLOAD FILE -->
+        <div class="form-group">
+            <label for="cv_file">Tải lên CV có sẵn (Tùy chọn, PDF, max 10MB)</label>
+            <input type="file" id="cv_file" name="cv_file" class="form-control" accept=".pdf">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Tạo CV</button>
+    </form>
+</div>
+{% endblock %}

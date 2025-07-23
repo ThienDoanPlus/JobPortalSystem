@@ -1,0 +1,47 @@
+<!-- /templates/employer/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Bảng điều khiển Nhà tuyển dụng{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header-actions">
+        <h2>Bảng điều khiển: {{ company.name }}</h2>
+        <a href="{{ url_for('employer.post_job') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Đăng tin mới
+        </a>
+    </div>
+    <div class="card-body">
+        <h3>Các tin tuyển dụng đang hoạt động</h3>
+        {% if jobs %}
+            <ul class="list-group">
+            {% for job in jobs %}
+                <li class="list-group-item">
+                    <div class="list-group-item-info">
+                        <strong>{{ job.title }}</strong>
+                        <span class="metadata">
+                            <i class="fas fa-map-marker-alt"></i> {{ job.location }} |
+                            Đăng ngày: {{ job.created_date.strftime('%d-%m-%Y') }}
+                        </span>
+                    </div>
+                    <div class="list-group-item-actions">
+                        <a href="#" class="btn-action" title="Xem các ứng viên"><i class="fas fa-users"></i> (0)</a>
+                        <a href="#" class="btn-action" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn-action text-danger" title="Xóa"><i class="fas fa-trash-alt"></i></a>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h4>Bạn chưa đăng tin tuyển dụng nào</h4>
+                <p>Hãy bắt đầu tìm kiếm những ứng viên tài năng bằng cách đăng tin tuyển dụng đầu tiên của bạn.</p>
+                <a href="{{ url_for('employer.post_job') }}" class="btn btn-primary">Đăng tin ngay</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
