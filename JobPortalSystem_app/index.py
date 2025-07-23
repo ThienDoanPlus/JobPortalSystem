@@ -10,3 +10,5 @@ def home():
 @index_bp.route('/about')
 def about():
     return "<h1>Đây là trang giới thiệu</h1>"
+
+
