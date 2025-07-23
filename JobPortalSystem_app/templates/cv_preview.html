@@ -1,0 +1,58 @@
+<!-- /templates/cv_preview.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem trước: {{ cv.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="preview-body">
+    <div class="preview-container">
+        <div class="preview-actions">
+            <button onclick="window.print()" class="btn btn-primary"><i class="fas fa-print"></i> In CV</button>
+            <a href="#" class="btn btn-outline"><i class="fas fa-download"></i> Tải xuống PDF</a>
+        </div>
+
+        <!--  CV -->
+        <div class="preview-sheet">
+            <div class="cv-header">
+                <h3>{{ current_user.candidate_profile.full_name }}</h3>
+                <p>{{ cv.title }}</p>
+            </div>
+
+            <!-- Phần Kinh nghiệm -->
+            <div class="cv-section">
+                <h4><i class="fas fa-briefcase"></i> KINH NGHIỆM LÀM VIỆC</h4>
+                {% if cv.experiences %}
+                    {% for exp in cv.experiences %}
+                    <div class="cv-item">
+                        <div class="cv-item-title">{{ exp.job_title }}</div>
+                        <div class="cv-item-subtitle">{{ exp.company_name }}</div>
+                        <div class="cv-item-description">{{ exp.description }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="cv-empty-section">Chưa có thông tin kinh nghiệm.</p>
+                {% endif %}
+            </div>
+
+            <!-- Phần Học vấn -->
+            <div class="cv-section">
+                <h4><i class="fas fa-graduation-cap"></i> HỌC VẤN</h4>
+                {% if cv.educations %}
+                    {% for edu in cv.educations %}
+                    <div class="cv-item">
+                        <div class="cv-item-title">{{ edu.degree }} - {{ edu.major }}</div>
+                        <div class="cv-item-subtitle">{{ edu.institution_name }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                     <p class="cv-empty-section">Chưa có thông tin học vấn.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
