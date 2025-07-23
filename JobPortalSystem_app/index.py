@@ -1,3 +1,4 @@
+
 from flask import Blueprint, render_template
 
 index_bp = Blueprint('main', __name__)
@@ -10,5 +11,4 @@ def home():
 @index_bp.route('/about')
 def about():
     return "<h1>Đây là trang giới thiệu</h1>"
-
 

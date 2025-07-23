@@ -3,7 +3,6 @@ from .models import User, CandidateProfile, Company, RoleEnum, db, Resume, Exper
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import login_manager
 
-
 # Hàm Flask-Login sẽ dùng nó để lấy thông tin user
 # từ session mỗi khi bạn tải lại trang.
 @login_manager.user_loader
