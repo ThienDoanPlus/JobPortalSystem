@@ -26,11 +26,38 @@
         </div>
     </div>
 
-    <!-- Phần nội dung còn lại của trang chủ sẽ ở đây -->
+<!-- Danh sách công việc -->
     <div class="container" style="padding-top: 40px;">
-        <h2>Việc làm tốt nhất</h2>
-        <!-- (Các card việc làm sẽ được thêm vào đây sau) -->
-        <p>Nội dung các công việc nổi bật...</p>
+        <h2>Việc làm mới nhất</h2>
+
+        {% if jobs %}
+            <div class="job-grid">
+                {% for job in jobs %}
+                    <div class="job-card">
+                        <h3><a href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.title }}</a></h3>
+                        <p class="company-name">{{ job.company.name }}</p>
+                        <p class="location"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
+                        <p class="salary">
+                            {% if job.salary_min and job.salary_max %}
+                                {{ "{:,.0f}".format(job.salary_min) }} - {{ "{:,.0f}".format(job.salary_max) }} VNĐ
+                            {% else %}
+                                Thỏa thuận
+                            {% endif %}
+                        </p>
+                        <div class="job-tags">
+                            <span class="tag">{{ job.job_type.value }}</span>
+                            <span class="tag">{{ job.experience_level.value }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Hiện chưa có công việc nào được đăng.</p>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ url_for('main.job_list') }}" class="btn btn-outline">Xem tất cả việc làm</a>
+        </div>
     </div>
 {% endblock %}
 

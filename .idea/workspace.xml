@@ -5,65 +5,55 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4dd69d31-c3f6-458f-8362-f4e2b4e7cdbd" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/auth.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/candidate.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/employer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/static/css/style.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/static/uploads/JobPortalSystem1.pdf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/base.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/cv_create.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/cv_edit.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/cv_manage.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/cv_preview.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/employer/dashboard.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/employer/post_job.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/login.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/profile.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/register.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/README" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/alembic.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/env.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/script.py.mako" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/versions/909ca8f1ab00_add_cv_file_path_to_resume_model.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/versions/c5881929d07e_initial_database_models_and_tables.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/migrations/versions/faf0157d7090_add_payment_to_resume_model.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ngrok_recovery_codes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/jobs/job_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/JobPortalSystem.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/JobPortalSystem.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/.idea/JobPortalSystem_app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/.idea/JobPortalSystem_app.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/dao.py" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/dao.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/index.py" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/index.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/static/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/tests/test_login.py" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/tests/test_login.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "khoiluon"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;khoiluon&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/ThienDoanPlus/JobPortalSystem.git",
-    "accountId": "4059edee-7b79-4ab1-b721-bb729793fd66"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/ThienDoanPlus/JobPortalSystem.git&quot;,
+    &quot;accountId&quot;: &quot;4059edee-7b79-4ab1-b721-bb729793fd66&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
@@ -74,10 +64,11 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Merging nguyenkhoi",
+    "git-widget-placeholder": "nguyenkhoi",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "D:/StudyUni/HK9/QLDAPM/JobPortalSystem",
     "node.js.detected.package.eslint": "true",
@@ -85,7 +76,13 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.keymap",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
   }
 }]]></component>
   <component name="SharedIndexes">
@@ -105,7 +102,8 @@
       <option name="presentableId" value="Default" />
       <updated>1751992815203</updated>
       <workItem from="1751992816475" duration="193000" />
-      <workItem from="1753255846747" duration="299000" />
+      <workItem from="1753255846747" duration="3803000" />
+      <workItem from="1753262720727" duration="24637000" />
     </task>
     <servers />
   </component>
