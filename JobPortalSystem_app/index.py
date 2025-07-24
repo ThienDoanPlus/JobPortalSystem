@@ -3,6 +3,7 @@ from . import dao
 from .models import JobPost, RoleEnum
 from flask_login import current_user, login_required
 
+
 index_bp = Blueprint('main', __name__)
 
 @index_bp.route('/')
@@ -78,5 +79,6 @@ def apply_job(job_id):
 
 
     return jsonify({'success': True})
+
 
 
