@@ -1,7 +1,9 @@
 import json
+
 from .models import User, CandidateProfile, Company, RoleEnum, db, Resume, Experience, Education, JobPost
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import login_manager
+from sqlalchemy import or_
 
 # Hàm Flask-Login sẽ dùng nó để lấy thông tin user
 # từ session mỗi khi bạn tải lại trang.
@@ -149,3 +151,55 @@ def get_jobs_by_filters(location=None, job_type=None, experience_level=None, lim
 def get_job_by_id(job_id):
 
     return JobPost.query.get(job_id)
+
+"""Tìm kiểm và lọc tin tuyển dụng"""
+def search_jobs(keyword=None, location=None, specialized=None, limit=None, search_type='all'):
+    query = JobPost.query.filter_by(active=True)
+
+    if keyword:
+        keyword_pattern = f"%{keyword}%"
+
+        if search_type == 'company':
+            query = query.filter(JobPost.company.has(Company.name.ilike(keyword_pattern)))
+        elif search_type == 'position':
+            query = query.filter(JobPost.title.ilike(keyword_pattern))
+        else:  # all
+            query = query.filter(or_(
+                JobPost.title.ilike(keyword_pattern),
+                JobPost.description.ilike(keyword_pattern),
+                JobPost.company.has(Company.name.ilike(keyword_pattern))
+            ))
+
+    if location:
+        query = query.filter(JobPost.location.ilike(f"%{location}%"))
+
+    if specialized:
+        query = query.filter(JobPost.specialized.ilike(f"%{specialized}%"))
+
+    query = query.order_by(JobPost.created_date.desc())
+
+    if limit:
+        return query.limit(limit).all()
+    return query.all()
+
+def search_jobs_paginated(keyword='', location='', search_type='all', page=1, per_page=20):
+    query = JobPost.query.filter_by(active=True)
+
+    if keyword:
+        keyword = f"%{keyword}%"
+        if search_type == 'company':
+            query = query.filter(JobPost.company.has(Company.name.ilike(keyword)))
+        elif search_type == 'position':
+            query = query.filter(JobPost.title.ilike(keyword))
+        else:  # all
+            query = query.filter(or_(
+                JobPost.title.ilike(keyword),
+                JobPost.description.ilike(keyword),
+                JobPost.company.has(Company.name.ilike(keyword))
+            ))
+
+    if location:
+        query = query.filter(JobPost.location.ilike(f"%{location}%"))
+
+    return query.order_by(JobPost.created_date.desc()) \
+                .paginate(page=page, per_page=per_page, error_out=False)
