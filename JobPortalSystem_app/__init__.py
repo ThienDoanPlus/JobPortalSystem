@@ -42,7 +42,6 @@ def create_app(config_class=Config):
     app.register_blueprint(employer_bp)
 
 
-
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
 

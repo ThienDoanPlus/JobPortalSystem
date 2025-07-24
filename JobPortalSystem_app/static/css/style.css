@@ -503,4 +503,86 @@ a:hover {
     }
 }
 
+.job-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
 
+.job-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    background: white;
+    transition: box-shadow 0.3s ease;
+}
+
+.job-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.job-card h3 a {
+    color: #2c5aa0;
+    text-decoration: none;
+}
+
+.company-name {
+    color: #666;
+    font-weight: 500;
+}
+
+.job-tags {
+    margin: 10px 0;
+}
+
+.tag {
+    background: #f0f0f0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+
+/*CSS JOBDETAIL*/
+/* Style cho tiêu đề section */
+.job-section h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* Breadcrumb trong suốt */
+.breadcrumb {
+  background-color: transparent !important;
+}
+
+/* Card shadow */
+.card.shadow-sm {
+  border: none;
+}
+
+/* Logo công ty */
+.company-logo img {
+  object-fit: cover;
+  width: 100px;
+  height: 100px;
+}
+
+/* Sidebar sticky */
+.position-sticky {
+  /*position: -webkit-sticky;*/
+  position: sticky;
+}
+
+/* Nút ứng tuyển full-width */
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+/* Căn giữa nội dung text-muted */
+.card .text-muted {
+  font-size: 0.9rem;
+}

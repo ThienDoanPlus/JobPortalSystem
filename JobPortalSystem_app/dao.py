@@ -1,4 +1,4 @@
-
+import json
 from .models import User, CandidateProfile, Company, RoleEnum, db, Resume, Experience, Education, JobPost
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import login_manager
@@ -125,3 +125,27 @@ def delete_cv_by_id(cv_id):
         db.session.commit()
         return True
     return False
+
+"""Lấy danh sách công việc mới nhất"""
+def get_latest_jobs(limit=10):
+    return JobPost.query.filter_by(active=True) \
+        .order_by(JobPost.created_date.desc()) \
+        .limit(limit).all()
+
+"""Lấy công việc theo bộ lọc"""
+def get_jobs_by_filters(location=None, job_type=None, experience_level=None, limit=20):
+    query = JobPost.query.filter_by(active=True)
+
+    if location:
+        query = query.filter(JobPost.location.contains(location))
+    if job_type:
+        query = query.filter_by(job_type=job_type)
+    if experience_level:
+        query = query.filter_by(experience_level=experience_level)
+
+    return query.order_by(JobPost.created_date.desc()).limit(limit).all()
+
+"""Lấy thông tin chi tiết công việc"""
+def get_job_by_id(job_id):
+
+    return JobPost.query.get(job_id)
