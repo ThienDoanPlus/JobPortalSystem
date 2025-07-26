@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from . import dao
 from .models import JobPost, RoleEnum
 from flask_login import current_user, login_required
+from flask import current_app
 
 index_bp = Blueprint('main', __name__)
 
@@ -60,23 +61,39 @@ def job_detail(job_id):
 def about():
     return "<h1>Đây là trang giới thiệu</h1>"
 
+# file: index.py
+
 @index_bp.route('/apply/<int:job_id>', methods=['POST'])
 @login_required
 def apply_job(job_id):
-    # chỉ xử lý POST thôi
     if current_user.role != RoleEnum.CANDIDATE:
-        return jsonify({'error': 'Bạn cần tài khoản ứng viên'}), 403
+        return jsonify({'error': 'Chỉ có ứng viên mới có thể ứng tuyển.'}), 403
+
+    if not current_user.candidate_profile:
+         return jsonify({'error': 'Không tìm thấy hồ sơ ứng viên của bạn.'}), 400
 
     resume_id = request.form.get('resume_id')
     cv_file   = request.files.get('cv_file')
-    # gọi DAO, catch lỗi duplicate, extension, size…
-    dao.create_application(
-        job_id=job_id,
-        candidate_id=current_user.candidate_profile.id,
-        resume_id=resume_id or None,
-        cv_file=cv_file)
 
+    # Nếu không chọn CV online và cũng không tải file lên
+    if not resume_id and not cv_file:
+        return jsonify({'error': 'Vui lòng chọn CV online hoặc tải lên một file CV.'}), 400
 
-    return jsonify({'success': True})
+    try:
+        # Hàm DAO sẽ xử lý tất cả logic
+        application = dao.create_application(
+            job_id=job_id,
+            candidate_id=current_user.candidate_profile.id,
+            resume_id=resume_id,
+            cv_file=cv_file
+        )
+        return jsonify({'success': True, 'application_id': application.id})
+
+    except Exception as e:
+        # Bắt các lỗi cụ thể từ DAO để trả về thông báo rõ ràng
+        # Ví dụ: lỗi đã ứng tuyển, lỗi file không hợp lệ, ...
+        # Ghi lại log lỗi để debug
+        current_app.logger.error(f"Application Error: {e}")
+        return jsonify({'error': str(e)}), 400
 
 

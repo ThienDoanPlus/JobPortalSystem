@@ -173,6 +173,13 @@
                                             </div>
                                             {% endif %}
                                         </div>
+
+                                        <div class="form-group">
+                                            <label>Thư giới thiệu: </label>
+                                            <textarea name="letter" class="form-control" style="font-size: 12px"
+                                                      rows="3"
+                                                      placeholder="Viết giới thiệu ngắn gọn về bản thân (điểm mạnh, điểm yếu) và nêu rõ mong muốn, lý do làm việc tại công ty này. Đây là cách gây ấn tượng với nhà tuyển dụng nếu bạn có chưa có kinh nghiệm làm việc (hoặc CV không tốt)."></textarea>
+                                        </div>
                                     </div>
                                     <div class="col-xs-6"></div>
                                 </div>
@@ -267,52 +274,13 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger px-4" id="btn-apply">Nộp CV</button>
+                            <button type="button" class="btn btn-danger px-4" id="btn-apply-submit">Nộp CV</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-    <script>
-        function showUploadForm() {
-            document.getElementById('frm-select-cv-online').style.display = 'none';
-            document.getElementById('frm-upload').style.display = 'block';
-        }
-
-        function showSelectOnlineCVForm() {
-            document.getElementById('frm-upload').style.display = 'none';
-            document.getElementById('frm-select-cv-online').style.display = 'block';
-        }
-
-        document.getElementById('btn-apply-submit').onclick = async () => {
-            const jobId = parseInt("{{ job.id }}", 10);
-
-
-            const modal = document.getElementById('applyModal');
-            const resumeId = document.querySelector('input[name="resume_id"]:checked')?.value;
-            const fileInput = document.getElementById('newCvFile');
-
-            const formData = new FormData();
-            if (resumeId) formData.append('resume_id', resumeId);
-            if (fileInput.files[0]) formData.append('cv_file', fileInput.files[0]);
-
-            const resp = await fetch(`/apply/${jobId}`, {
-                method: 'POST',
-                credentials: 'same-origin',
-                body: formData
-            });
-            const data = await resp.json();
-
-            if (resp.ok && data.success) {
-                alert('Ứng tuyển thành công!');
-                modal.style.display = 'none';
-            } else {
-                alert(data.error || 'Đã có lỗi xảy ra.');
-            }
-        };
-    </script>
 
     <!-- Scoped CSS -->
     <style>
@@ -408,4 +376,13 @@
         }
     </style>
 </div>
+<div id="job-data-container"
+     style="display: none;"
+     data-has-cv="{{ cv_list|length > 0 }}"
+     data-create-cv-url="{{ url_for('candidate.create_cv') }}"
+     data-apply-url="{{ url_for('main.apply_job', job_id=job.id) }}">
+</div>
+
+<!-- NẠP FILE JAVASCRIPT: Phải đặt SAU cầu nối dữ liệu -->
+<script src="{{ url_for('static', filename='js/apply.js') }}"></script>
 {% endblock %}

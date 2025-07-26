@@ -80,6 +80,8 @@ class CandidateProfile(BaseModel):
     user = db.relationship("User", back_populates="candidate_profile")
     resumes = db.relationship("Resume", backref="candidate", lazy="dynamic")  # Một ứng viên có nhiều CV
 
+    applications = db.relationship("Application", backref="candidate")
+
 
 # --- RESUME MODELS (Requirement 1): Xây dựng hệ thống CV online chi tiết ---
 
