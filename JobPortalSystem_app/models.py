@@ -223,4 +223,3 @@ class Payment(BaseModel):
     payment_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     status = db.Column(db.Enum(PaymentStatusEnum), default=PaymentStatusEnum.PENDING, nullable=False)
     transaction_id = db.Column(db.String(255), unique=True, nullable=True)
-

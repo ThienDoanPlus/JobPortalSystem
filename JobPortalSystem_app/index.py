@@ -4,6 +4,7 @@ from .models import JobPost, RoleEnum
 from flask_login import current_user, login_required
 from flask import current_app
 
+
 index_bp = Blueprint('main', __name__)
 
 @index_bp.route('/')
@@ -95,5 +96,6 @@ def apply_job(job_id):
         # Ghi lại log lỗi để debug
         current_app.logger.error(f"Application Error: {e}")
         return jsonify({'error': str(e)}), 400
+
 
 
