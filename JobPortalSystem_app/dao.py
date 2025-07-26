@@ -1,12 +1,21 @@
 import json
-
-from .models import User, CandidateProfile, Company, RoleEnum, db, Resume, Experience, Education, JobPost
+from .models import (
+    User, CandidateProfile, Company, RoleEnum, Resume, Experience, Education,
+    JobPost, Application, ApplicationStatusEnum, db
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import login_manager
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
+from flask import current_app
+from werkzeug.utils import secure_filename
+from .utils import send_application_emails
 
 # Hàm Flask-Login sẽ dùng nó để lấy thông tin user
 # từ session mỗi khi bạn tải lại trang.
+ALLOWED_EXTENSIONS = {'pdf'}
+MAX_FILE_SIZE = 10 * 1024 * 1024
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -151,6 +160,100 @@ def get_jobs_by_filters(location=None, job_type=None, experience_level=None, lim
 def get_job_by_id(job_id):
 
     return JobPost.query.get(job_id)
+
+"""xử lý nộp CV"""
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def create_application(job_id, candidate_id, resume_id=None, cv_file=None):
+    """
+    Tạo một đơn ứng tuyển mới.
+    - Kiểm tra xem ứng viên đã ứng tuyển công việc này chưa.
+    - Xử lý việc ứng tuyển bằng CV online (resume_id) hoặc file tải lên (cv_file).
+    """
+    # 1. Kiểm tra xem ứng viên đã ứng tuyển vào công việc này chưa
+    existing_application = Application.query.filter_by(
+        candidate_id=candidate_id,
+        job_id=job_id
+    ).first()
+    if existing_application:
+        raise ValueError("Bạn đã ứng tuyển vào công việc này rồi.")
+
+    # 2. Tạo đối tượng Application mới
+    new_application = Application(
+        job_id=job_id,
+        candidate_id=candidate_id,
+        status=ApplicationStatusEnum.RECEIVED
+    )
+
+    cv_file_path = None  # Biến để lưu đường dẫn file nếu có
+
+    # 3. Xử lý file tải lên nếu có
+    if cv_file and cv_file.filename != '':
+        # 3.1. Kiểm tra file
+        if not allowed_file(cv_file.filename):
+            raise ValueError('Định dạng file không hợp lệ. Chỉ chấp nhận file PDF.')
+
+        # Sử dụng content_length để kiểm tra kích thước file một cách an toàn
+        if cv_file.content_length > MAX_FILE_SIZE:
+            raise ValueError('Kích thước file không được vượt quá 10MB.')
+
+        # 3.2. Lưu file
+        filename = secure_filename(f"application_{candidate_id}_{job_id}_{cv_file.filename}")
+        upload_folder = current_app.config.get('UPLOAD_FOLDER', 'uploads')  # Lấy từ config
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+
+        cv_file_path = os.path.join(upload_folder, filename)
+        cv_file.save(cv_file_path)
+
+        # Lưu đường dẫn tương đối để truy cập từ web
+        new_application.cv_file_url = os.path.join('uploads', filename)
+
+    # 4. Xử lý CV online nếu có
+    elif resume_id:
+        # Kiểm tra xem resume_id có hợp lệ và thuộc về ứng viên không
+        resume = Resume.query.filter_by(id=resume_id, candidate_id=candidate_id).first()
+        if not resume:
+            raise ValueError("CV online không hợp lệ hoặc không thuộc về bạn.")
+        new_application.resume_id = resume_id
+
+    else:
+        # Trường hợp không có cả hai
+        raise ValueError("Cần phải cung cấp CV online hoặc tải lên file CV.")
+
+    # 5. Lưu vào CSDL
+    try:
+        db.session.add(new_application)
+        db.session.commit()
+
+        # Sau khi commit thành công, chúng ta có new_application.id
+        # Bây giờ, chúng ta sẽ cố gắng gửi email
+        try:
+            # Gọi hàm gửi mail với ID của đơn ứng tuyển vừa tạo
+            send_application_emails(new_application.id)
+        except Exception as e:
+            # Nếu gửi mail lỗi, chỉ ghi log lại chứ không làm hỏng request chính
+            # Người dùng vẫn nhận được thông báo ứng tuyển thành công trên web
+            current_app.logger.error(f"Không thể gửi email xác nhận cho application ID {new_application.id}: {e}")
+
+        # Trả về đối tượng application đã được lưu thành công
+        return new_application
+
+    except IntegrityError as e:
+        db.session.rollback()
+        # Lỗi này thường xảy ra do race condition hoặc người dùng đã ứng tuyển rồi
+        current_app.logger.warning(f"IntegrityError khi tạo application: {e}")
+        raise ValueError("Bạn đã ứng tuyển vào công việc này rồi.")
+
+    except Exception as e:
+        db.session.rollback()
+        # Xóa file đã tải lên nếu có lỗi xảy ra với CSDL
+        if 'cv_file_path' in locals() and cv_file_path and os.path.exists(cv_file_path):
+            os.remove(cv_file_path)
+        current_app.logger.error(f"Lỗi không xác định khi tạo application: {e}")
+        raise e
 
 """Tìm kiểm và lọc tin tuyển dụng"""
 def search_jobs(keyword=None, location=None, specialized=None, limit=None, search_type='all'):
