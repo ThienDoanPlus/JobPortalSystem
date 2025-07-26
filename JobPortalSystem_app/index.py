@@ -12,13 +12,19 @@ def home():
     # Lấy dữ liệu công việc mới nhất
     latest_jobs = dao.get_latest_jobs(limit=8)
 
-    # Nếu có tìm kiếm từ form
+    # Lấy từ khóa tìm kiếm từ form
     search_keyword = request.args.get('keyword', '')
     search_location = request.args.get('location', '')
+    search_type = request.args.get('search_type', 'all')  # ← Thêm dòng này
 
+    # Nếu có tìm kiếm
     if search_keyword or search_location:
-        # Thực hiện tìm kiếm (có thể tạo function search riêng trong dao)
-        jobs = dao.get_jobs_by_filters(location=search_location, limit=20)
+        jobs = dao.search_jobs(
+            keyword=search_keyword,
+            location=search_location,
+            search_type=search_type,
+            limit=20
+        )
     else:
         jobs = latest_jobs
 
@@ -26,17 +32,29 @@ def home():
                            latest_jobs=latest_jobs,
                            jobs=jobs,
                            search_keyword=search_keyword,
-                           search_location=search_location)
+                           search_location=search_location,
+                           search_type=search_type)
 
 
 @index_bp.route('/jobs')
 def job_list():
-    """Trang danh sách tất cả công việc"""
+    """Trang danh sách tất cả công việc, có hỗ trợ tìm kiếm"""
     page = request.args.get('page', 1, type=int)
-    jobs = JobPost.query.filter_by(active=True) \
-        .order_by(JobPost.created_date.desc()) \
-        .paginate(page=page, per_page=20, error_out=False)
-    return render_template('jobs/job_list.html', jobs=jobs)
+    keyword = request.args.get('keyword', '').strip()
+    location = request.args.get('location', '').strip()
+
+    # Gọi DAO để lấy kết quả tìm kiếm có phân trang
+    jobs_paginated = dao.search_jobs_paginated(
+        keyword=keyword,
+        location=location,
+        page=page,
+        per_page=20
+    )
+
+    return render_template('job_list.html',
+                           jobs=jobs_paginated,
+                           search_keyword=keyword,
+                           search_location=location)
 
 # Thêm một route ví dụ khác
 @index_bp.route('/job/<int:job_id>')
@@ -96,6 +114,8 @@ def apply_job(job_id):
         # Ghi lại log lỗi để debug
         current_app.logger.error(f"Application Error: {e}")
         return jsonify({'error': str(e)}), 400
+
+
 
 
 
