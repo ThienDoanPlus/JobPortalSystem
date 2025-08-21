@@ -4,20 +4,71 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="4dd69d31-c3f6-458f-8362-f4e2b4e7cdbd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+=======
+      <list default="true" id="4dd69d31-c3f6-458f-8362-f4e2b4e7cdbd" name="Changes" comment="Display application profile, application details, upload files">
+        <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/static/js/apply.js" afterDir="false" />
+        <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/emails/candidate_confirmation.html" afterDir="false" />
+        <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/emails/recruiter_notification.html" afterDir="false" />
+        <change afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/job_list.html" afterDir="false" />
+        <change beforePath="$PROJECT_DIR$/.idea/JobPortalSystem.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/JobPortalSystem.iml" afterDir="false" />
+        <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      </list>
+
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/dao.py" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/dao.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/index.py" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/index.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/templates/jobs/job_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/templates/jobs/job_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JobPortalSystem_app/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/JobPortalSystem_app/utils.py" afterDir="false" />
+>>>>>>> 0f2468aa3435294e18b7804cf3db0215d7a609c0
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+<<<<<<< HEAD
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/.venv/Lib/site-packages/flask/sansio/app.py" root0="SKIP_INSPECTION" />
   </component>
+=======
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;khoiluon&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/ThienDoanPlus/JobPortalSystem.git&quot;,
+    &quot;accountId&quot;: &quot;4059edee-7b79-4ab1-b721-bb729793fd66&quot;
+  }
+}</component>
+>>>>>>> 0f2468aa3435294e18b7804cf3db0215d7a609c0
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
@@ -26,6 +77,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+<<<<<<< HEAD
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
@@ -38,15 +90,44 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+=======
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "D:/StudyUni/HK9/AI",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
+>>>>>>> 0f2468aa3435294e18b7804cf3db0215d7a609c0
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
+<<<<<<< HEAD
         <option value="bundled-python-sdk-657d8234b839-64d779b69b7a-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.26927.74" />
+=======
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-PY-243.23654.177" />
+        <option value="bundled-python-sdk-91d3a02ef49d-43b77aa2d136-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.23654.177" />
+>>>>>>> 0f2468aa3435294e18b7804cf3db0215d7a609c0
       </set>
     </attachedChunks>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="4dd69d31-c3f6-458f-8362-f4e2b4e7cdbd" name="Changes" comment="" />
@@ -55,12 +136,33 @@
       <option name="presentableId" value="Default" />
       <updated>1751992815203</updated>
       <workItem from="1751992816475" duration="193000" />
+<<<<<<< HEAD
       <workItem from="1754128247500" duration="2488000" />
       <workItem from="1754834636498" duration="41000" />
+=======
+      <workItem from="1753255846747" duration="3803000" />
+      <workItem from="1753262720727" duration="25388000" />
+      <workItem from="1753415886763" duration="8627000" />
+      <workItem from="1753494076409" duration="33000" />
+>>>>>>> 0f2468aa3435294e18b7804cf3db0215d7a609c0
     </task>
+    <task id="LOCAL-00001" summary="Display application profile, application details, upload files">
+      <option name="closed" value="true" />
+      <created>1753355939428</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1753355939428</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="merge" />
+    <MESSAGE value="Display application profile, application details, upload files" />
+    <option name="LAST_COMMIT_MESSAGE" value="Display application profile, application details, upload files" />
   </component>
 </project>
