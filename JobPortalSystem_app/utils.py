@@ -8,20 +8,18 @@ from flask import current_app, render_template
 from flask_mail import Message
 import threading
 from . import mail, db
-from .models import Application
+from .models import Application, RoleEnum
 """
     decorator để đảm bảo người dùng đã đăng nhập và có vai trò là RECRUITER.
 """
 def recruiter_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Kiểm tra xem user có được xác thực
-        if not current_user.is_authenticated or current_user.role.name != 'RECRUITER':
-            flash('Bạn không có quyền truy cập trang này.', 'danger')
+        if not current_user.is_authenticated or current_user.role != RoleEnum.RECRUITER:
+            print("DEBUG: Không phải recruiter hoặc chưa đăng nhập", flush=True)
             return redirect(url_for('main.home'))
         return f(*args, **kwargs)
     return decorated_function
-
 
 def send_async_email(app, msg):
     """Hàm chạy trong thread để gửi mail mà không block request."""

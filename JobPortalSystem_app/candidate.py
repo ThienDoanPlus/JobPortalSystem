@@ -3,8 +3,10 @@ import os
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-
+from werkzeug.exceptions import BadRequest
+from .models import User
 from . import dao
+from . import db
 
 candidate_bp = Blueprint('candidate', __name__)
 ALLOWED_EXTENSIONS = {'pdf'}
@@ -152,3 +154,68 @@ def delete_cv(cv_id):
         flash('Đã có lỗi xảy ra khi xóa hồ sơ.', 'danger')
 
     return redirect(url_for('candidate.manage_cvs'))
+
+
+@candidate_bp.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    user = current_user
+    profile = getattr(user, 'candidate_profile', None)
+
+    if request.method == 'POST':
+        # Lấy dữ liệu từ form
+        full_name = request.form.get('full_name')
+        phone = request.form.get('phone')
+        email = request.form.get('email')
+        username = request.form.get('username')
+
+        # Cập nhật bảng user
+        if email and email != user.email:
+            if User.query.filter_by(email=email).first():
+                flash('Email đã được sử dụng.', 'danger')
+                return redirect(url_for('candidate.settings'))
+            user.email = email
+        if username and username != user.username:
+            if User.query.filter_by(username=username).first():
+                flash('Tên đăng nhập đã được sử dụng.', 'danger')
+                return redirect(url_for('candidate.settings'))
+            user.username = username
+
+        # Cập nhật bảng candidate_profile
+        if profile:
+            if full_name is not None:
+                profile.full_name = full_name
+            # Cập nhật luôn cả khi phone là rỗng (cho phép xóa số điện thoại)
+            if phone is not None:
+                profile.phone_number = phone
+
+        address = request.form.get('address')
+        if address is not None:
+            profile.address = address
+
+        linkedin_url = request.form.get('linkedin_url')
+        if linkedin_url is not None:
+            profile.linkedin_url = linkedin_url
+
+        # Đổi mật khẩu nếu có
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        if current_password and new_password and confirm_password:
+            if not user.check_password(current_password):
+                flash('Mật khẩu hiện tại không đúng.', 'danger')
+            elif new_password != confirm_password:
+                flash('Mật khẩu mới không khớp.', 'danger')
+            else:
+                user.set_password(new_password)
+                flash('Đổi mật khẩu thành công!', 'success')
+        try:
+            db.session.commit()
+            flash('Cập nhật thông tin thành công!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash('Có lỗi xảy ra khi lưu dữ liệu.', 'danger')
+
+        return redirect(url_for('candidate.settings'))
+
+    return render_template('settings.html', user=user, profile=profile)       

@@ -7,18 +7,35 @@
     <title>Xem trước: {{ cv.title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .cv-header, .cv-header h3, .cv-header p {
+                text-align: center !important;
+                text-transform: uppercase !important;
+                font-weight: bold !important;
+            }
+            .cv-item-title {
+                font-weight: bold !important;
+            }
+        }
+    </style>
 </head>
 <body class="preview-body">
     <div class="preview-container">
         <div class="preview-actions">
-            <button onclick="window.print()" class="btn btn-primary"><i class="fas fa-print"></i> In CV</button>
-            <a href="#" class="btn btn-outline"><i class="fas fa-download"></i> Tải xuống PDF</a>
+            <button onclick="window.print()" class="btn btn-primary no-print"><i class="fas fa-print"></i> In CV</button>
+            <a href="{{ url_for('employer.download_cv_pdf', cv_id=cv.id) }}" class="btn btn-outline no-print">
+                <i class="fas fa-download"></i> Tải xuống PDF
+            </a>
         </div>
 
         <!--  CV -->
         <div class="preview-sheet">
             <div class="cv-header">
-                <h3>{{ current_user.candidate_profile.full_name }}</h3>
+                <h3>{{ cv.candidate.full_name }}</h3>
                 <p>{{ cv.title }}</p>
             </div>
 
@@ -28,9 +45,9 @@
                 {% if cv.experiences %}
                     {% for exp in cv.experiences %}
                     <div class="cv-item">
-                        <div class="cv-item-title">{{ exp.job_title }}</div>
-                        <div class="cv-item-subtitle">{{ exp.company_name }}</div>
-                        <div class="cv-item-description">{{ exp.description }}</div>
+                        <div class="cv-item-title">Vị trí ứng tuyển: {{ exp.job_title }}</div>
+                        <div class="cv-item-subtitle">Công ty: {{ exp.company_name }}</div>
+                        <div class="cv-item-description">Mô tả: {{ exp.description }}</div>
                     </div>
                     {% endfor %}
                 {% else %}
@@ -44,12 +61,12 @@
                 {% if cv.educations %}
                     {% for edu in cv.educations %}
                     <div class="cv-item">
-                        <div class="cv-item-title">{{ edu.degree }} - {{ edu.major }}</div>
-                        <div class="cv-item-subtitle">{{ edu.institution_name }}</div>
+                        <div class="cv-item-title">Chuyên ngành: {{ edu.degree }} - {{ edu.major }}</div>
+                        <div class="cv-item-subtitle">Trường: {{ edu.institution_name }}</div>
                     </div>
                     {% endfor %}
                 {% else %}
-                     <p class="cv-empty-section">Chưa có thông tin học vấn.</p>
+                    <p class="cv-empty-section">Chưa có thông tin học vấn.</p>
                 {% endif %}
             </div>
         </div>

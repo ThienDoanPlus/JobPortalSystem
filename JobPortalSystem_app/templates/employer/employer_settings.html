@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .settings-container {
+        max-width: 500px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        padding: 2.5rem 2rem;
+    }
+    .settings-container h2 {
+        color: #00796b;
+        font-weight: 700;
+    }
+    .settings-container label {
+        font-weight: 500;
+        color: #333;
+    }
+    .settings-container input.form-control, .settings-container textarea.form-control {
+        border-radius: 8px;
+        border: 1px solid #d0d7de;
+        margin-bottom: 1rem;
+        padding: 0.75rem 1rem;
+        font-size: 1.05em;
+    }
+    .settings-container .btn-primary {
+        background: linear-gradient(90deg, #009688 0%, #43cea2 100%);
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1.1em;
+        padding: 0.7em 0;
+        transition: background 0.2s;
+    }
+    .settings-container .btn-primary:hover {
+        background: linear-gradient(90deg, #43cea2 0%, #009688 100%);
+    }
+    .settings-container hr {
+        margin: 2rem 0 1.5rem 0;
+        border-top: 1.5px solid #e0e0e0;
+    }
+    .btn {
+        margin-top: 10px;
+        width: 100%;
+    }
+    .form-control {
+        width: 100%;
+        color: #333;
+        margin-top: 10px;
+    }
+    .title {
+        text-align: center;
+    }
+    @media (max-width: 600px) {
+        .settings-container {
+            padding: 1.2rem 0.5rem;
+        }
+    }
+</style>
+<div class="settings-container">
+    <h2 class="text-center mb-4 title">Cài Đặt Nhà Tuyển Dụng</h2>
+    <form method="post" action="{{ url_for('employer.settings') }}">
+        <div class="mb-3">
+            <label for="name" class="form-label">Tên công ty</label>
+            <input type="text" class="form-control" id="name" name="name"
+                value="{{ profile.name if profile else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="tax_code" class="form-label">Mã số thuế</label>
+            <input type="text" class="form-control" id="tax_code" name="tax_code"
+                value="{{ profile.tax_code if profile else '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Mô tả công ty</label>
+            <textarea class="form-control" id="description" name="description" rows="3">{{ profile.description if profile else '' }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Địa chỉ</label>
+            <input type="text" class="form-control" id="location" name="location"
+                value="{{ profile.location if profile else '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="website" class="form-label">Website</label>
+            <input type="text" class="form-control" id="website" name="website"
+                value="{{ profile.website if profile else '' }}">
+        </div>
+        <hr>
+        <h5 class="mb-3">Đổi mật khẩu</h5>
+        <div class="mb-3">
+            <label for="current_password" class="form-label">Mật khẩu hiện tại</label>
+            <input type="password" class="form-control" id="current_password" name="current_password">
+        </div>
+        <div class="mb-3">
+            <label for="new_password" class="form-label">Mật khẩu mới</label>
+            <input type="password" class="form-control" id="new_password" name="new_password">
+        </div>
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">Xác nhận mật khẩu mới</label>
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+        </div>
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
