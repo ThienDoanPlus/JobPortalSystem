@@ -52,7 +52,7 @@
                     <a href="{{ url_for('auth.login') }}">Đăng nhập</a>
                     <a href="{{ url_for('auth.register') }}" class="btn btn-outline">Đăng ký</a>
                 {% endif %}
-                 <a href="#" class="btn btn-primary" style="margin-left: 20px;">Đăng tuyển ngay <i class="fas fa-arrow-right"></i></a>
+                 <a href="{{ url_for('employer.post_job') }}" class="btn btn-primary" style="margin-left: 20px;">Đăng tuyển ngay <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </header>
