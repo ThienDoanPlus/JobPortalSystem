@@ -1,64 +1,53 @@
-// Đây là bản hướng dẫn công việc theo phương pháp Docker
+// Jenkinsfile phiên bản "bat" dành riêng cho Windows
 pipeline {
-    agent any // Chạy trên bất kỳ agent nào có sẵn
+    agent any
 
     stages {
-        // Giai đoạn 1: Lấy mã nguồn từ GitHub
         stage('Checkout Code') {
             steps {
-                // Lấy code từ nhánh main của repo
                 git branch: 'main', url: 'https://github.com/ThienDoanPlus/JobPortalSystem.git'
-                echo '✅ Đã lấy mã nguồn thành công.'
+                echo '✅ Da lay ma nguon thanh cong.'
             }
         }
 
-        // Giai đoạn 2: Build "hộp" Docker
         stage('Build Docker Image') {
             steps {
-                echo '🚀 Bắt đầu build Docker image...'
-                // NHỚ THAY THẾ 'nguyenkhoineee' BẰNG DOCKER HUB ID CỦA BẠN!
-                sh 'docker build -t nguyenkhoineee/job-portal-system .'
-                echo '✅ Đã build xong image.'
+                echo '🚀 Bat dau build Docker image...'
+                // THAY sh BANG bat
+                bat 'docker build -t nguyenkhoineee/job-portal-system .'
+                echo '✅ Da build xong image.'
             }
         }
 
-        // Giai đoạn 3: Chạy Unit Test bên trong "hộp"
         stage('Run Unit Tests') {
             steps {
-                echo '🔬 Bắt đầu chạy unit tests...'
-                // Chạy test bên trong container vừa build để đảm bảo môi trường nhất quán
-                // NHỚ THAY THẾ 'nguyenkhoineee' BẰNG DOCKER HUB ID CỦA BẠN!
-                sh 'docker run --rm nguyenkhoineee/job-portal-system python -m pytest'
-                echo '✅ Tất cả các test đã qua!'
+                echo '🔬 Bat dau chay unit tests...'
+                // THAY sh BANG bat
+                bat 'docker run --rm nguyenkhoineee/job-portal-system python -m pytest'
+                echo '✅ Tat ca cac test da qua!'
             }
         }
 
-        // Giai đoạn 4: Đẩy "hộp" lên kho chứa Docker Hub
         stage('Push to Docker Hub') {
             steps {
-                echo '📦 Đang đẩy image lên Docker Hub...'
-                // Sử dụng credentials đã lưu trong Jenkins
+                echo '📦 Dang day image len Docker Hub...'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    // NHỚ THAY THẾ 'nguyenkhoineee' BẰNG DOCKER HUB ID CỦA BẠN!
-                    sh 'docker push nguyenkhoineee/job-portal-system'
+                    // THAY sh BANG bat VA THAY DOI CU PHAP BIEN MOI TRUONG
+                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                    bat 'docker push nguyenkhoineee/job-portal-system'
                 }
-                echo '✅ Đã đẩy image thành công.'
+                echo '✅ Da day image thanh cong.'
             }
         }
 
-        // Giai đoạn 5: Triển khai ứng dụng
         stage('Deploy Application') {
             steps {
-                echo '🚚 Bắt đầu triển khai ứng dụng...'
-                // Dừng và xóa container cũ nếu đang chạy
-                sh 'docker stop job-portal-container || true'
-                sh 'docker rm job-portal-container || true'
-                
-                // Chạy container mới từ image vừa đẩy lên
-                // NHỚ THAY THẾ 'nguyenkhoineee' BẰNG DOCKER HUB ID CỦA BẠN!
-                sh 'docker run -d --name job-portal-container -p 5000:5000 nguyenkhoineee/job-portal-system'
-                echo '🎉 Ứng dụng đã được triển khai thành công và đang chạy!'
+                echo '🚚 Bat dau trien khai ung dung...'
+                // THAY sh BANG bat VA THAY DOI CACH XU LY LOI
+                bat 'docker stop job-portal-container || exit 0'
+                bat 'docker rm job-portal-container || exit 0'
+                bat 'docker run -d --name job-portal-container -p 5000:5000 nguyenkhoineee/job-portal-system'
+                echo '🎉 Ung dung da duoc trien khai thanh cong va dang chay!'
             }
         }
     }
