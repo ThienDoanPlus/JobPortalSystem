@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from . import dao
-from .models import JobPost, RoleEnum
+from .models import JobPost, RoleEnum, User
 from flask_login import current_user, login_required
 from flask import current_app
 
@@ -114,7 +114,6 @@ def apply_job(job_id):
         # Ghi lại log lỗi để debug
         current_app.logger.error(f"Application Error: {e}")
         return jsonify({'error': str(e)}), 400
-
 
 
 

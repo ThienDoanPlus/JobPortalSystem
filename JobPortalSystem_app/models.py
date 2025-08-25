@@ -4,6 +4,7 @@ from . import db
 from datetime import datetime
 from enum import Enum as PyEnum
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class RoleEnum(PyEnum):
@@ -67,6 +68,12 @@ class User(BaseModel, UserMixin):
     # Relationships trỏ đến các hồ sơ chuyên biệt
     recruiter_profile = db.relationship("Company", back_populates="user", uselist=False)
     candidate_profile = db.relationship("CandidateProfile", back_populates="user", uselist=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 
 class CandidateProfile(BaseModel):

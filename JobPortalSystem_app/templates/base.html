@@ -21,7 +21,7 @@
 
             <!-- Phần giữa: Các link chính -->
             <div class="nav-center">
-                <a href="#">Việc Làm</a>
+                <a href="{{ url_for('main.home') }}">Việc Làm</a>
 
                 {% if current_user.is_authenticated %}
                     {% if current_user.role.name == 'CANDIDATE' %}
@@ -44,7 +44,11 @@
                         <a href="{{ url_for('candidate.profile') }}" class="icon-link"><i class="fas fa-user-circle"></i></a>
                         <div class="dropdown-content">
                             <a href="{{ url_for('candidate.profile') }}">Hồ sơ của tôi</a>
-                            <a href="#">Cài đặt</a>
+                            {% if current_user.role.name == 'CANDIDATE' %}
+                                <a href="{{ url_for('candidate.settings') }}">Cài đặt</a>
+                            {% elif current_user.role.name == 'RECRUITER' %}
+                                <a href="{{ url_for('employer.settings') }}">Cài đặt của Nhà tuyển dụng</a>
+                            {% endif %}
                             <a href="{{ url_for('auth.logout') }}">Đăng xuất</a>
                         </div>
                     </div>
@@ -52,7 +56,7 @@
                     <a href="{{ url_for('auth.login') }}">Đăng nhập</a>
                     <a href="{{ url_for('auth.register') }}" class="btn btn-outline">Đăng ký</a>
                 {% endif %}
-                 <a href="#" class="btn btn-primary" style="margin-left: 20px;">Đăng tuyển ngay <i class="fas fa-arrow-right"></i></a>
+                    <a href="{{ url_for('employer.post_job') }}" class="btn btn-primary" style="margin-left: 20px;">Đăng tuyển ngay <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </header>

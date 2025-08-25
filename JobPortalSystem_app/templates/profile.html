@@ -3,11 +3,22 @@
 {% block title %}Hồ Sơ Của Tôi{% endblock %}
 
 {% block content %}
-    <h2>Trang Hồ Sơ Cá Nhân</h2>
-    {% if profile %}
-        <p><strong>Họ và tên:</strong> {{ profile.full_name }}</p>
-    {% endif %}
-    <p><strong>Tên đăng nhập:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Vai trò:</strong> {{ user.role.name }}</p>
+<div class="profile-container" style="max-width: 500px; margin: 40px auto;">
+    <div class="card shadow" style="border-radius: 16px;">
+        <div class="card-body" style="padding: 2rem;">
+            <div class="text-center mb-4">
+                <i class="fas fa-user-circle fa-4x" style="color: #00796b;"></i>
+                <h2 class="mt-3 mb-1">{{ profile.full_name if profile else user.username }}</h2>
+                <span class="badge bg-info text-dark" style="font-size: 1em;">{{ user.role.name|capitalize }}</span>
+            </div>
+            <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item"><strong>Tên đăng nhập:</strong> {{ user.username }}</li>
+                <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+                {% if profile %}
+                <li class="list-group-item"><strong>Họ và tên:</strong> {{ profile.full_name }}</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
 {% endblock %}

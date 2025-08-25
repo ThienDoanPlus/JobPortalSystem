@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Ứng viên cho: {{ job.title }}{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Danh sách ứng viên cho vị trí ứng tuyển: {{ job.title }}</h2>
+        <a href="{{ url_for('employer.dashboard') }}" class="btn btn-secondary btn-sm">Quay lại</a>
+    </div>
+    <div class="card-body">
+        {% if applications %}
+            <ul class="list-group">
+            {% for app in applications %}
+                <li class="list-group-item">
+                    <strong>{{ app.candidate.full_name }}</strong>
+                    <span class="metadata">
+                        Email: {{ app.candidate.user.email }} |
+                        Ngày nộp: {{ app.created_date.strftime('%d-%m-%Y') }}
+                    </span>
+                    {% if app.resume_id %}
+                        <a href="{{ url_for('employer.preview_candidate_cv', cv_id=app.resume_id) }}" class="btn btn-info btn-sm" target="_blank">Xem CV online</a>
+                    {% elif app.cv_file_url %}
+                        <a href="{{ app.cv_file_url }}" class="btn btn-info btn-sm" target="_blank">Tải CV</a>
+                    {% endif %}
+                    <form method="post" action="{{ url_for('employer.update_application_status', application_id=app.id) }}" style="display:inline;">
+                        <select name="status" onchange="this.form.submit()" class="badge badge-secondary" style="border:none; background:none; color:inherit;">
+                            {% for st in status_choices %}
+                                <option value="{{ st.name }}" {% if app.status.name == st.name %}selected{% endif %}>{{ st.value }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>Chưa có ứng viên nào nộp cho tin này.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -53,7 +53,7 @@ def create_app(config_class=Config):
     app.register_blueprint(candidate_bp)
 
     from .employer import employer_bp
-    app.register_blueprint(employer_bp)
+    app.register_blueprint(employer_bp, url_prefix='/employer')
 
 
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
