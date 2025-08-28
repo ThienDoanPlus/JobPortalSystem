@@ -3,7 +3,8 @@ import os
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-
+from werkzeug.exceptions import BadRequest
+from .models import User, Application, ApplicationStatusEnum, db
 from . import dao
 
 candidate_bp = Blueprint('candidate', __name__)
@@ -12,7 +13,7 @@ MAX_FILE_SIZE = 10 * 1024 * 1024 # 10 MB
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @candidate_bp.route('/profile')
@@ -66,13 +67,21 @@ def create_cv():
 @candidate_bp.route('/cvs')
 @login_required
 def manage_cvs():
-    # Lấy profile và sau đó là các CV liên quan
     candidate_profile = dao.get_candidate_profile_by_user_id(current_user.id)
     cv_list = []
+    cv_status_map = {}
     if candidate_profile:
         cv_list = candidate_profile.resumes.all()
-
-    return render_template('cv_manage.html', cv_list=cv_list)
+        # Lấy trạng thái mới nhất cho từng CV
+        for cv in cv_list:
+            applications = dao.get_applications_by_cv(cv.id)
+            if applications:
+                # Lấy trạng thái của đơn ứng tuyển mới nhất
+                latest_app = max(applications, key=lambda app: app.created_date)
+                cv_status_map[cv.id] = latest_app.status.value
+            else:
+                cv_status_map[cv.id] = "Chưa ứng tuyển"
+    return render_template('cv_manage.html', cv_list=cv_list, cv_status_map=cv_status_map)
 
 @candidate_bp.route('/cv/<int:cv_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -120,6 +129,15 @@ def edit_cv(cv_id):
 
     return render_template('cv_edit.html', cv=cv, experiences=experiences, educations=educations)
 
+
+@candidate_bp.route('/cv/<int:cv_id>/applications')
+@login_required
+def cv_applications(cv_id):
+    # Lấy danh sách các đơn ứng tuyển của CV này
+    cv = dao.get_cv_by_id(cv_id)
+    applications = dao.get_applications_by_cv(cv_id)
+    return render_template('candidate/cv_applications.html', cv=cv, applications=applications)
+
 @candidate_bp.route('/cv/<int:cv_id>/preview')
 @login_required
 def preview_cv(cv_id):
@@ -150,5 +168,68 @@ def delete_cv(cv_id):
         flash(f'Đã xóa thành công hồ sơ "{cv.title}".', 'success')
     else:
         flash('Đã có lỗi xảy ra khi xóa hồ sơ.', 'danger')
-
     return redirect(url_for('candidate.manage_cvs'))
+
+@candidate_bp.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    user = current_user
+    profile = getattr(user, 'candidate_profile', None)
+
+    if request.method == 'POST':
+        # Lấy dữ liệu từ form
+        full_name = request.form.get('full_name')
+        phone = request.form.get('phone')
+        email = request.form.get('email')
+        username = request.form.get('username')
+
+        # Cập nhật bảng user
+        if email and email != user.email:
+            if User.query.filter_by(email=email).first():
+                flash('Email đã được sử dụng.', 'danger')
+                return redirect(url_for('candidate.settings'))
+            user.email = email
+        if username and username != user.username:
+            if User.query.filter_by(username=username).first():
+                flash('Tên đăng nhập đã được sử dụng.', 'danger')
+                return redirect(url_for('candidate.settings'))
+            user.username = username
+
+        # Cập nhật bảng candidate_profile
+        if profile:
+            if full_name is not None:
+                profile.full_name = full_name
+            # Cập nhật luôn cả khi phone là rỗng (cho phép xóa số điện thoại)
+            if phone is not None:
+                profile.phone_number = phone
+
+        address = request.form.get('address')
+        if address is not None:
+            profile.address = address
+
+        linkedin_url = request.form.get('linkedin_url')
+        if linkedin_url is not None:
+            profile.linkedin_url = linkedin_url
+
+        # Đổi mật khẩu nếu có
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        if current_password and new_password and confirm_password:
+            if not user.check_password(current_password):
+                flash('Mật khẩu hiện tại không đúng.', 'danger')
+            elif new_password != confirm_password:
+                flash('Mật khẩu mới không khớp.', 'danger')
+            else:
+                user.set_password(new_password)
+                flash('Đổi mật khẩu thành công!', 'success')
+        try:
+            db.session.commit()
+            flash('Cập nhật thông tin thành công!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash('Có lỗi xảy ra khi lưu dữ liệu.', 'danger')
+
+        return redirect(url_for('candidate.settings'))
+
+    return render_template('settings.html', user=user, profile=profile)

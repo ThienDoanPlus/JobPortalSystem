@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Chỉnh sửa tin tuyển dụng{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Chỉnh sửa tin tuyển dụng</h2>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-group">
+                <label>Tiêu đề</label>
+                <input type="text" name="title" class="form-control" value="{{ job.title }}" required>
+            </div>
+            <div class="form-group">
+                <label>Loại công việc</label>
+                <select name="job_type" class="form-control" required>
+                    {% for jt in job_types %}
+                    <option value="{{ jt.name }}" {% if job.job_type.name == jt.name %}selected{% endif %}>{{ jt.value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Cấp bậc</label>
+                <select name="experience_level" class="form-control" required>
+                    {% for el in experience_levels %}
+                    <option value="{{ el.name }}" {% if job.experience_level.name == el.name %}selected{% endif %}>{{ el.value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Địa điểm</label>
+                <input type="text" name="location" class="form-control" value="{{ job.location }}" required>
+            </div>
+            <div class="form-group">
+                <label>Lương tối thiểu</label>
+                <input type="number" name="salary_min" class="form-control" value="{{ job.salary_min }}">
+            </div>
+            <div class="form-group">
+                <label>Lương tối đa</label>
+                <input type="number" name="salary_max" class="form-control" value="{{ job.salary_max }}">
+            </div>
+            <div class="form-group">
+                <label>Mô tả công việc</label>
+                <textarea rows="10" name="description" class="form-control" required>{{ job.description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Yêu cầu</label>
+                <textarea rows="10" name="requirements" class="form-control">{{ job.requirements }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Quyền lợi</label>
+                <textarea rows="10" name="benefits" class="form-control">{{ job.benefits }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a href="{{ url_for('employer.dashboard') }}" class="btn btn-secondary">Hủy</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+
+{% extends "base.html" %}
+
+{% block title %}Danh sách việc làm{% endblock %}
+
+{% block styles %}
+<style>
+    .search-bar {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 30px 0;
+    }
+
+    .form-control{
+        width: 500px;
+    }
+
+    .form-control::placeholder {
+        color: #999;
+    }
+
+    .btn-primary {
+        font-weight: bold;
+    }
+
+    .job-tags .badge {
+        margin-right: 5px;
+    }
+
+    .job-card:hover {
+        background-color: #f0f8ff;
+        transition: background-color 0.2s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Tìm kiếm việc làm</h1>
+
+    <!-- Form tìm kiếm -->
+    <form method="GET" action="{{ url_for('main.job_list') }}" class="search-bar py-4">
+        <div class="container">
+            <div class="row justify-content-center g-3">
+                <div class="col-lg-5 col-md-6 col-sm-12">
+                    <input type="text" name="keyword" class="form-control form-control-lg"
+                           placeholder="Vị trí tuyển dụng, tên công ty..."
+                           value="{{ search_keyword or '' }}">
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12">
+                    <input type="text" name="location" class="form-control form-control-lg"
+                           placeholder="Địa điểm làm việc"
+                           value="{{ search_location or '' }}">
+                </div>
+                <div class="col-lg-3 col-md-12 col-sm-12">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {% if search_keyword or search_location %}
+        <p class="mb-4">
+            Kết quả tìm kiếm
+            {% if search_keyword %} với từ khóa <strong>"{{ search_keyword }}"</strong>{% endif %}
+            {% if search_location %} tại <strong>"{{ search_location }}"</strong>{% endif %}
+        </p>
+    {% endif %}
+
+    {% if jobs.items %}
+        <div class="job-grid">
+            {% for job in jobs.items %}
+                <div class="job-card mb-4 p-3 border rounded shadow-sm">
+                    <h4><a href="{{ url_for('main.job_details', job_id=job.id) }}">{{ job.title }}</a></h4>
+                    <p class="mb-1 text-muted">{{ job.company.name }}</p>
+                    <p class="mb-1"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
+                    <p class="mb-1">
+                        <i class="fas fa-dollar-sign"></i>
+                        {% if job.salary_min and job.salary_max %}
+                            {{ "{:,.0f}".format(job.salary_min) }} - {{ "{:,.0f}".format(job.salary_max) }} VNĐ
+                        {% else %}
+                            Thỏa thuận
+                        {% endif %}
+                    </p>
+                    <div class="job-tags mt-2">
+                        <span class="badge bg-info text-dark">{{ job.job_type.value }}</span>
+                        <span class="badge bg-secondary">{{ job.experience_level.value }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <nav aria-label="Pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if jobs.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.job_list', page=jobs.prev_num, keyword=search_keyword, location=search_location) }}">Trước</a>
+                    </li>
+                {% endif %}
+                {% for page_num in jobs.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == jobs.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.job_list', page=page_num, keyword=search_keyword, location=search_location) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                {% if jobs.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.job_list', page=jobs.next_num, keyword=search_keyword, location=search_location) }}">Tiếp</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% else %}
+        <p>Không tìm thấy công việc nào phù hợp với tiêu chí của bạn.</p>
+    {% endif %}
+</div>
+{% endblock %}

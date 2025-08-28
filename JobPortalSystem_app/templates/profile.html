@@ -3,11 +3,15 @@
 {% block title %}Hồ Sơ Của Tôi{% endblock %}
 
 {% block content %}
-    <h2>Trang Hồ Sơ Cá Nhân</h2>
-    {% if profile %}
-        <p><strong>Họ và tên:</strong> {{ profile.full_name }}</p>
-    {% endif %}
-    <p><strong>Tên đăng nhập:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Vai trò:</strong> {{ user.role.name }}</p>
+<div class="profile-container">
+    <h2>Trang Hồ Sơ Của Tôi</h2>
+    <div class="profile-card">
+        {% if profile %}
+            <div class="profile-row"><span>Họ và tên:</span> <strong>{{ profile.full_name }}</strong></div>
+        {% endif %}
+        <div class="profile-row"><span>Tên đăng nhập:</span> <strong>{{ user.username }}</strong></div>
+        <div class="profile-row"><span>Email:</span> <strong>{{ user.email }}</strong></div>
+        <div class="profile-row"><span>Vai trò:</span> <strong>{{ user.role.name }}</strong></div>
+    </div>
+</div>
 {% endblock %}

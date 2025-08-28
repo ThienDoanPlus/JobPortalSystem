@@ -1,36 +1,155 @@
-<!-- /templates/index.html -->
 {% extends "base.html" %}
 
 {% block title %}Tìm việc làm nhanh 24h, việc làm mới nhất trên toàn quốc{% endblock %}
 
 {% block content %}
-    <!-- Hero Section -->
-    <div class="hero-section">
-        <div class="container">
-            <h1>Tìm việc làm nhanh 24h, việc làm mới nhất trên toàn quốc</h1>
-            <p>Tiếp cận 60.000+ tin tuyển dụng việc làm mới mỗi ngày từ hàng nghìn doanh nghiệp uy tín tại Việt Nam</p>
+<div class="hero-section" style="padding: 60px 0;">
+  <div class="container">
+    <h1>Tìm việc làm nhanh 24h, việc làm mới nhất trên toàn quốc</h1>
+    <p>Tiếp cận 60.000+ tin tuyển dụng mới mỗi ngày từ hàng nghìn doanh nghiệp uy tín</p>
 
-            <div class="search-bar">
-                <div class="search-input">
-                    <i class="fas fa-briefcase"></i>
-                    <input type="text" placeholder="Vị trí tuyển dụng, tên công ty">
-                </div>
-                <div class="search-input">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <input type="text" placeholder="Địa điểm">
-                </div>
-                <button class="btn btn-primary search-btn">
-                    <i class="fas fa-search"></i> Tìm kiếm
-                </button>
+    <form method="GET" action="{{ url_for('main.job_list') }}" id="search-form">
+      <div class="search-bar">
+        <!-- Keyword input -->
+        <div class="search-input">
+          <i class="fas fa-briefcase"></i>
+          <input type="text" name="keyword" id="keyword"
+                 placeholder="Vị trí tuyển dụng, tên công ty" class="form-control form-control-lg"
+                 value="{{ search_keyword or '' }}">
+          <div id="suggest-keyword" class="suggest-box">
+            <div class="radio-group mb-3">
+              <label class="me-3">
+                <input type="radio" name="search_type" value="all" {{ checked_all }}>
+                Cả hai
+              </label>
+
+              <label class="me-3">
+                <input type="radio" name="search_type" value="company" {{ checked_company }}>
+                Công ty
+              </label>
+
+              <label class="me-3">
+                <input type="radio" name="search_type" value="position" {{ checked_position }}>
+                Vị trí ứng tuyển
+              </label>
             </div>
-        </div>
-    </div>
 
-    <!-- Phần nội dung còn lại của trang chủ sẽ ở đây -->
-    <div class="container" style="padding-top: 40px;">
-        <h2>Việc làm tốt nhất</h2>
-        <!-- (Các card việc làm sẽ được thêm vào đây sau) -->
-        <p>Nội dung các công việc nổi bật...</p>
+            <p class="text">Từ khoá phổ biến:</p>
+            <ul class="suggest-list">
+              <li><a href="#">quản lý</a></li>
+              <li><a href="#">tiếng trung</a></li>
+              <li><a href="#">nhân sự</a></li>
+              <li><a href="#">marketing</a></li>
+              <li><a href="#">lập trình viên</a></li>
+              <li><a href="#">nhân viên telesales</a></li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Location input -->
+        <div class="search-input">
+          <i class="fas fa-map-marker-alt"></i>
+          <input type="text" name="location" id="location"
+                 placeholder="Địa điểm" class="form-control form-control-lg"
+                 value="{{ search_location or '' }}">
+          <div id="suggest-location" class="suggest-box">
+            <ul>
+              <li><a href="#">Hà Nội</a></li>
+              <li><a href="#">TP. Hồ Chí Minh</a></li>
+              <li><a href="#">Đà Nẵng</a></li>
+              <li><a href="#">Cần Thơ</a></li>
+              <li><a href="#">Vĩnh Phúc</a></li>
+              <li><a href="#">Phú Thọ</a></li>
+              <li><a href="#">Bình Dương</a></li>
+              <li><a href="#">Đồng Nai</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+      </div>
+    </form>
+    <img src="/static/image/jobs.jpg" class="full-width-image" alt="Job Banner">
+  </div>
+</div>
+
+<!-- Danh sách công việc -->
+<div class="container" style="padding-top: 40px;">
+  <h2>Việc làm mới nhất</h2>
+
+  {% if jobs %}
+    <div class="job-grid">
+      {% for job in jobs %}
+        <div class="job-card">
+          <h3><a href="{{ url_for('main.job_details', job_id=job.id) }}">{{ job.title }}</a></h3>
+          <p class="company-name">{{ job.company.name }}</p>
+          <p class="location"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
+          <p class="salary">
+            {% if job.salary_min and job.salary_max %}
+              {{ "{:,.0f}".format(job.salary_min) }} - {{ "{:,.0f}".format(job.salary_max) }} VNĐ
+            {% else %}
+              Thỏa thuận
+            {% endif %}
+          </p>
+          <div class="job-tags">
+            <span class="tag">{{ job.job_type.value }}</span>
+            <span class="tag">{{ job.experience_level.value }}</span>
+          </div>
+        </div>
+      {% endfor %}
     </div>
+  {% else %}
+    <p>Hiện chưa có công việc nào được đăng.</p>
+  {% endif %}
+
+  <div style="text-align: center; margin-top: 30px;">
+    <a href="{{ url_for('main.job_list') }}" class="btn btn-outline">Xem tất cả việc làm</a>
+  </div>
+</div>
 {% endblock %}
 
+{% block scripts %}
+<script>
+  const suggestKeyword = document.getElementById('suggest-keyword');
+  const suggestLocation = document.getElementById('suggest-location');
+  const keywordInput = document.getElementById('keyword');
+  const locationInput = document.getElementById('location');
+  const form = document.getElementById('search-form');
+
+  keywordInput.addEventListener('focus', () => {
+    suggestKeyword.style.display = 'block';
+    suggestLocation.style.display = 'none';
+  });
+
+  locationInput.addEventListener('focus', () => {
+    suggestLocation.style.display = 'block';
+    suggestKeyword.style.display = 'none';
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!keywordInput.contains(e.target) && !suggestKeyword.contains(e.target)) {
+      suggestKeyword.style.display = 'none';
+    }
+    if (!locationInput.contains(e.target) && !suggestLocation.contains(e.target)) {
+      suggestLocation.style.display = 'none';
+    }
+  });
+
+  document.querySelectorAll('#suggest-keyword a').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      keywordInput.value = this.textContent.trim();
+      form.submit();
+    });
+  });
+
+  document.querySelectorAll('#suggest-location a').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      locationInput.value = this.textContent.trim();
+      form.submit();
+    });
+  });
+</script>
+{% endblock %}

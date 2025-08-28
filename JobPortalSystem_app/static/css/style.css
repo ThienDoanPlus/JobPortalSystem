@@ -503,4 +503,316 @@ a:hover {
     }
 }
 
+.job-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
 
+.job-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    background: white;
+    transition: box-shadow 0.3s ease;
+}
+
+.job-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.job-card h3 a {
+    color: #2c5aa0;
+    text-decoration: none;
+}
+
+.company-name {
+    color: #666;
+    font-weight: 500;
+}
+
+.job-tags {
+    margin: 10px 0;
+}
+
+.tag {
+    background: #f0f0f0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+
+/*CSS JOBDETAIL*/
+/* Style cho tiêu đề section */
+.job-section h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* Breadcrumb trong suốt */
+.breadcrumb {
+  background-color: transparent !important;
+}
+
+/* Card shadow */
+.card.shadow-sm {
+  border: none;
+}
+
+/* Logo công ty */
+.company-logo img {
+  object-fit: cover;
+  width: 100px;
+  height: 100px;
+}
+
+/* Sidebar sticky */
+.position-sticky {
+  /*position: -webkit-sticky;*/
+  position: sticky;
+}
+
+/* Nút ứng tuyển full-width */
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+/* Căn giữa nội dung text-muted */
+.card .text-muted {
+  font-size: 0.9rem;
+}
+
+.search-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .search-input {
+    position: relative;
+    flex: 1;
+  }
+
+  .search-input i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #888;
+    z-index: 2;
+  }
+
+  .search-input input {
+    padding-left: 40px;
+    z-index: 1;
+    position: relative;
+  }
+
+  .suggest-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 20px;
+    z-index: 10;
+    display: none;
+  }
+
+  .suggest-box ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    text-align: left;
+  }
+
+  .suggest-box li a {
+    text-decoration: none;
+    display: block;
+    padding: 5px 0;
+    color: #333;
+  }
+
+  .suggest-box li a:hover {
+    background-color: #f1f1f1;
+    border-radius: 4px;
+    padding-left: 5px;
+  }
+
+  .radio-group {
+    margin-bottom: 10px;
+  }
+
+  .radio-group label {
+    margin-right: 15px;
+    font-weight: 500;
+  }
+  .radio-group label {
+    display: inline-block;
+    margin-right: 15px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .radio-group input[type="radio"] {
+    margin-right: 5px;
+  }
+  .radio-group label {
+    color: black;
+  }
+  .text {
+    color: black;
+    text-align: left;
+  }
+  .suggest-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+
+  .suggest-list li {
+    display: flex;
+    align-items: center;
+  }
+
+  .suggest-list li::before {
+    content: "📈";
+    margin-right: 6px;
+    font-size: 1rem;
+    display: inline-block;
+  }
+  .full-width-image {
+  width: 100%;
+  height: 200px;
+  display: block;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+.text-primary{
+    color: #42fc04 !important;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+.profile-container {
+    max-width: 480px;
+    margin: 48px auto 0 auto;
+    padding: 0 16px;
+}
+
+.profile-card {
+    background: linear-gradient(135deg, #ffffff 60%, #b2dfdb 100%);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,150,136,0.10), 0 1.5px 6px rgba(0,0,0,0.03);
+    padding: 36px 28px 28px 28px;
+    margin-top: 28px;
+    font-size: 1.12rem;
+    position: relative;
+    overflow: hidden;
+    border: 1.5px solid #b2dfdb;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.profile-card:hover {
+    box-shadow: 0 8px 32px rgba(0,150,136,0.18);
+    border-color: #009688;
+    background: linear-gradient(135deg, #e0f7fa 60%, #ffffff 100%);
+}
+
+.profile-card::before {
+    content: "";
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, #b2dfdb 60%, transparent 100%);
+    opacity: 0.25;
+    z-index: 0;
+}
+
+.profile-card h2 {
+    margin-bottom: 28px;
+    color: #009688;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 1.07rem;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-row:last-child {
+    border-bottom: none;
+}
+
+.profile-row span {
+    color: #555;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+.profile-row strong {
+    color: #009688;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    background: #e0f2f1;
+    padding: 3px 10px;
+    border-radius: 8px;
+}
+
+@media (max-width: 600px) {
+    .profile-card {
+        padding: 20px 8px 16px 8px;
+    }
+    .profile-container {
+        max-width: 98vw;
+        margin-top: 18px;
+    }
+}
+
+.stats-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 32px rgba(0,150,136,0.09), 0 1.5px 6px rgba(0,0,0,0.03);
+    padding: 2.5rem 2rem 2rem 2rem;
+}
+.stats-title {
+    color: #009688;
+    font-weight: 800;
+    margin-bottom: 2.2rem;
+    text-align: center;
+    font-size: 2rem;
+    letter-spacing: -1px;
+}
+.stats-chart-wrap {
+    background: linear-gradient(90deg, #e0f7fa 0%, #f1f8e9 100%);
+    border-radius: 12px;
+    padding: 2rem 1rem 1.5rem 1rem;
+    box-shadow: 0 2px 12px rgba(0,150,136,0.07);
+    margin-bottom: 1.5rem;
+}
+@media (max-width: 700px) {
+    .stats-container { padding: 1.2rem 0.5rem; }
+    .stats-title { font-size: 1.2rem; }
+    .stats-chart-wrap { padding: 1rem 0.2rem 0.7rem 0.2rem; }
+}

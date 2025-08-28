@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Thống kê ứng viên{% endblock %}
+{% block content %}
+<div class="stats-container">
+    <h2 class="stats-title">Thống kê số lượng ứng viên theo bài đăng</h2>
+    <div class="stats-chart-wrap">
+        <canvas id="jobStatsChart" height="120"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="jobTitlesData" type="application/json">
+    {{ stats_data | map(attribute='job.title') | map('truncate', 30, True, '...') | list | tojson }}
+</script>
+<script id="appCountsData" type="application/json">
+    {{ stats_data | map(attribute='app_count') | list | tojson }}
+</script>
+<script src="{{ url_for('static', filename='js/stats_chart.js') }}"></script>
+{% endblock %}
