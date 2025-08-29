@@ -3,36 +3,46 @@ import os
 from dotenv import load_dotenv
 from urllib.parse import quote_plus
 
-# down các biến trong .env
+# Load biến từ .env (chỉ áp dụng ở local/dev)
 load_dotenv()
-
 
 class Config:
     """
-    Lớp cấu hình, lấy các giá trị từ file .env hoặc sử dụng giá trị mặc định.
+    Lớp cấu hình cho ứng dụng.
     """
-    # Lấy SECRET_KEY từ file .env
-    SECRET_KEY = os.getenv('SECRET_KEY')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret')
 
-    # Xây dựng chuỗi kết nối cơ sở dữ liệu từ các biến trong .env
-    user = os.getenv('DB_USER')
-    password = os.getenv('DB_PASS')
-    host = os.getenv('DB_HOST')
-    db_name = os.getenv('DB_NAME')
-    encoded_password = quote_plus(password)
+    UPLOAD_FOLDER = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)), 'static/uploads'
+    )
 
-    UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static/uploads')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # Chọn DB dựa trên môi trường
+    if 'JENKINS_HOME' in os.environ:
+        # CI/CD dùng SQLite
+        print("--- RUNNING IN CI/CD ENVIRONMENT, USING SQLITE ---")
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///ci_app.db'
+    else:
+        # Development / Production: MySQL
+        user = os.getenv('DB_USER', 'root')
+        password = os.getenv('DB_PASS', '')  # nếu chưa set thì rỗng
+        host = os.getenv('DB_HOST', 'localhost')
+        port = os.getenv('DB_PORT', '3306')
+        database = os.getenv('DB_NAME', 'jobportal')
 
-    SQLALCHEMY_DATABASE_URI = f'mysql+mysqlconnector://{user}:{encoded_password}@{host}/{db_name}'
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
+        encoded_password = quote_plus(password) if password else ''
+
+        SQLALCHEMY_DATABASE_URI = (
+            f"mysql+pymysql://{user}:{encoded_password}@{host}:{port}/{database}"
+        )
+
 
 class TestingConfig(Config):
     """
-    Lớp cấu hình dành riêng cho việc testing.
+    Cấu hình riêng cho test (pytest).
     """
     TESTING = True
-    # Sử dụng database SQLite trong bộ nhớ để test, đảm bảo test nhanh và không ảnh hưởng DB thật
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    WTF_CSRF_ENABLED = False  # Tắt CSRF token khi test form
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # in-memory DB
+    WTF_CSRF_ENABLED = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
