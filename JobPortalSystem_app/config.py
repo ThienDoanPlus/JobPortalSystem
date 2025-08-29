@@ -26,3 +26,13 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = f'mysql+mysqlconnector://{user}:{encoded_password}@{host}/{db_name}'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+
+class TestingConfig(Config):
+    """
+    Lớp cấu hình dành riêng cho việc testing.
+    """
+    TESTING = True
+    # Sử dụng database SQLite trong bộ nhớ để test, đảm bảo test nhanh và không ảnh hưởng DB thật
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    WTF_CSRF_ENABLED = False  # Tắt CSRF token khi test form
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
