@@ -1,0 +1,12 @@
+/* --- Footer --- */
+.main-footer { background-color: var(--text-color); color: #A0AEC0; padding: 40px 0; }
+.footer-content { display: flex; justify-content: space-between; gap: 20px; }
+.footer-col { flex: 1; }
+.footer-col h4 { color: white; margin-top: 0; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; display: inline-block; }
+.footer-col a { display: block; color: #A0AEC0; margin-bottom: 10px; }
+.footer-col a:hover { color: white; }```
+
+#### **5. `components/_cards.css`**
+```css
+.card { background-color: var(--card-bg-color); border-radius: 8px; box-shadow: var(--shadow); padding: 25px; margin-bottom: 30px; }
+.card-header { margin-bottom: 20px; }

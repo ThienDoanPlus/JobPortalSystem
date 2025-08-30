@@ -1,0 +1,206 @@
+/* --- Nâng cấp Trang CV Preview --- */
+
+/* 1. Background cho toàn bộ trang */
+.cv-preview-body {
+    background-color: #eef2f5; /* Màu nền xám xanh nhẹ nhàng */
+    font-family: 'Roboto', sans-serif; /* Áp dụng font mới */
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 2. Thanh hành động (Nút Quay lại, In) */
+.preview-actions {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 15px 0;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    margin-bottom: 30px;
+}
+.preview-actions .btn {
+    margin: 0 10px;
+}
+
+/* 3. Khung chứa CV để căn giữa */
+.preview-container {
+    padding: 0 20px 50px 20px;
+}
+
+/* 4. Tờ giấy CV chính */
+.preview-sheet {
+    max-width: 800px; /* Kích thước giống A4 */
+    margin: 0 auto;
+    background: #fff;
+    padding: 50px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* 5. Cải thiện bố cục bên trong CV */
+.cv-header-preview {
+    text-align: center;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+.cv-header-preview h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #111;
+}
+.cv-subtitle-preview {
+    font-size: 1.2rem;
+    color: #555;
+    margin-top: 5px;
+}
+.contact-info {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 20px;
+    font-size: 0.9rem;
+    color: #444;
+}
+.contact-info span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.contact-info i {
+    color: var(--primary-color);
+}
+
+.cv-section-preview {
+    margin-bottom: 30px;
+}
+
+.section-title-preview {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cv-item-preview {
+    margin-bottom: 20px;
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+}
+
+.item-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #222;
+    margin: 0;
+}
+
+.item-date {
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
+}
+
+.item-subtitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #444;
+    margin: 0 0 8px 0;
+}
+
+.item-description {
+    color: #555;
+    padding-left: 15px;
+    border-left: 2px solid #eee;
+}
+
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.skill-tag {
+    background-color: #eef2f5;
+    color: #374151;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+}
+
+/* 6. Style cho bản In */
+@media print {
+    .cv-preview-body {
+        background-color: #fff; /* Nền trắng khi in */
+    }
+    .no-print {
+        display: none !important; /* Ẩn các nút */
+    }
+    .preview-container {
+        padding: 0;
+    }
+    .preview-sheet {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        max-width: 100%;
+    }
+}
+
+/* --- Trang Xem trước CV  --- */
+.preview-body {
+    background-color: #E2E8F0;
+}
+
+.preview-container {
+    max-width: 850px;
+    margin: 30px auto;
+}
+
+.preview-actions {
+    margin-bottom: 20px;
+    text-align: right;
+}
+
+.preview-sheet {
+    background-color: var(--card-bg-color);
+    padding: 40px 50px;
+    border-radius: 5px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    min-height: 1000px;
+}
+
+/* Thêm icon vào trước tiêu đề các mục */
+.cv-section h4 i {
+    margin-right: 10px;
+}
+
+/* Style cho việc in ấn */
+@media print {
+    body, .preview-body {
+        background-color: white;
+    }
+    .preview-actions {
+        display: none;
+    }
+    .preview-container {
+        margin: 0;
+        max-width: 100%;
+    }
+    .preview-sheet {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+    }
+}

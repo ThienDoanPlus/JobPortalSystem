@@ -51,7 +51,7 @@ class VerificationStatusEnum(PyEnum):
 class BaseModel(db.Model):
     __abstract__ = True
     id = db.Column(db.Integer, primary_key=True)
-    active = db.Column(db.Boolean, default=True)
+    active = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     updated_date = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -94,10 +94,17 @@ class CandidateProfile(BaseModel):
 
 class Resume(BaseModel):
     __tablename__ = 'resume'
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate_profile.id'), nullable=False)
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate_profile.id'), nullable=True)
     title = db.Column(db.String(255), nullable=False, comment="VD: CV ứng tuyển Python Developer")
     cv_file_path = db.Column(db.String(255), nullable=True)
-
+    font_family = db.Column(db.String(100), default="'Roboto', sans-serif")
+    font_size = db.Column(db.Float, default=1.0)
+    line_spacing = db.Column(db.Float, default=1.5)
+    theme_color = db.Column(db.String(7), default="#000000")
+    background_style = db.Column(db.String(50), default="default")
+    is_template = db.Column(db.Boolean, default=False, nullable=False)
+    template_name = db.Column(db.String(100), nullable=True)  # Tên mẫu, ví dụ "Cổ điển", "Hiện đại"
+    thumbnail_url = db.Column(db.String(255), nullable=True)  # URL ảnh xem trước của mẫu
     # Một CV có nhiều kinh nghiệm, học vấn, kỹ năng...
     experiences = db.relationship("Experience", backref="resume", lazy=True, cascade="all, delete-orphan")
     educations = db.relationship("Education", backref="resume", lazy=True, cascade="all, delete-orphan")
@@ -112,6 +119,8 @@ class Experience(BaseModel):
     start_date = db.Column(db.Date)
     end_date = db.Column(db.Date)
     description = db.Column(db.Text)
+    order = db.Column(db.Integer, default=0)
+
 
 
 class Education(BaseModel):
@@ -121,6 +130,7 @@ class Education(BaseModel):
     degree = db.Column(db.String(255))
     major = db.Column(db.String(255))
     graduation_date = db.Column(db.Date)
+    order = db.Column(db.Integer, default=0)
 
 
 class Skill(BaseModel):
@@ -230,3 +240,4 @@ class Payment(BaseModel):
     payment_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     status = db.Column(db.Enum(PaymentStatusEnum), default=PaymentStatusEnum.PENDING, nullable=False)
     transaction_id = db.Column(db.String(255), unique=True, nullable=True)
+    job_post = db.relationship("JobPost", backref=db.backref("payment", uselist=False))

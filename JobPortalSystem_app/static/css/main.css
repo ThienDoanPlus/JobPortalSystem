@@ -1,0 +1,23 @@
+/* /static/css/main.css */
+@import "base/_variables.css";
+@import "base/_base.css";
+@import "components/_header.css";
+@import "components/_footer.css";
+@import "components/_buttons.css";
+@import "components/_forms.css";
+@import "components/_cards.css";
+@import "components/_alerts.css";
+@import "components/_modal.css";
+
+@import "pages/_auth.css";
+@import "pages/_job_list.css";
+@import "pages/_job_detail.css";
+@import "pages/_profile_dashboard.css";
+@import "pages/_cv_management.css";
+@import "pages/_cv_preview.css";
+@import "pages/_cv_builder_live.css";
+@import "pages/_cv_create.css";
+@import "pages/_cv_editor.css";
+
+
+

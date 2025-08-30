@@ -1,0 +1,12 @@
+/* --- Header & Navbar --- */
+.main-header { background-color: var(--card-bg-color); box-shadow: var(--shadow); padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
+.nav-container { display: flex; justify-content: space-between; align-items: center; }
+.nav-brand { font-size: 1.8em; font-weight: bold; color: var(--primary-color); }
+.nav-center a, .nav-right a { margin: 0 15px; font-weight: 500; }
+.nav-right { display: flex; align-items: center; }
+.icon-link { font-size: 1.2em; }
+.dropdown { position: relative; display: inline-block; }
+.dropdown-content { display: none; position: absolute; background-color: #f9f9f9; min-width: 160px; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2); z-index: 1; border-radius: 5px; right: 0; }
+.dropdown-content a { color: black; padding: 12px 16px; text-decoration: none; display: block; margin: 0 !important; }
+.dropdown-content a:hover { background-color: #f1f1f1; }
+.dropdown:hover .dropdown-content { display: block; }

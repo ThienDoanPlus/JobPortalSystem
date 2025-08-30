@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadRequest
-from .models import User
+from .models import User, Resume
 from . import dao
 from . import db
 
@@ -29,41 +29,70 @@ def profile():
 @candidate_bp.route('/cv/create', methods=['GET', 'POST'])
 @login_required
 def create_cv():
+    """Chỉ hiển thị trang chọn mẫu CV."""
+    cv_templates = Resume.query.filter_by(is_template=True).order_by(Resume.id).all()
+    return render_template('cv_create.html', cv_templates=cv_templates)
+
+@candidate_bp.route('/cv/create-from-template/<int:template_id>', methods=['POST'])
+@login_required
+def create_cv_from_template(template_id):
+    """Xử lý việc tạo CV mới khi người dùng chọn một mẫu."""
+    candidate_profile = dao.get_candidate_profile_by_user_id(current_user.id)
+    if not candidate_profile:
+        flash("Không tìm thấy hồ sơ ứng viên.", "danger")
+        return redirect(url_for('candidate.profile'))
+
+    # Gọi hàm DAO đã được hoàn thiện
+    new_cv = dao.clone_cv_from_template(
+        template_id=template_id,
+        candidate_id=candidate_profile.id
+    )
+
+    if new_cv:
+        flash('Tạo CV mới thành công! Bắt đầu chỉnh sửa ngay.', 'success')
+        # Chuyển hướng thẳng đến trang CV Builder
+        return redirect(url_for('candidate.edit_cv', cv_id=new_cv.id))
+    else:
+        flash('Lỗi khi tạo CV. Mẫu không hợp lệ hoặc có lỗi xảy ra.', 'danger')
+        return redirect(url_for('candidate.create_cv'))
+
+
+@candidate_bp.route('/cv/upload', methods=['POST'])
+@login_required
+def upload_cv():
+    """Route này chỉ chuyên xử lý việc upload file CV có sẵn."""
     if request.method == 'POST':
         title = request.form.get('title')
         cv_file = request.files.get('cv_file')
-        file_path = None
 
-        if not title:
-            flash('Vui lòng nhập tiêu đề cho CV.', 'danger')
-            return render_template('cv_create.html')
+        if not title or not cv_file or cv_file.filename == '':
+            flash('Vui lòng nhập tiêu đề và chọn file CV.', 'danger')
+            return redirect(url_for('candidate.create_cv'))
 
-        # Xử lý file nếu có
-        if cv_file and cv_file.filename != '':
-            if not allowed_file(cv_file.filename):
-                flash('Chỉ chấp nhận file PDF.', 'danger')
-                return render_template('cv_create.html')
+        # Lấy lại logic xử lý file từ hàm create_cv cũ
+        if not allowed_file(cv_file.filename):
+            flash('Chỉ chấp nhận file PDF.', 'danger')
+            return redirect(url_for('candidate.create_cv'))
 
-            # Kiểm tra kích thước file
-            if cv_file.content_length > MAX_FILE_SIZE:
-                flash('Kích thước file không được vượt quá 10MB.', 'danger')
-                return render_template('cv_create.html')
+        if cv_file.content_length > MAX_FILE_SIZE:
+            flash('Kích thước file không được vượt quá 10MB.', 'danger')
+            return redirect(url_for('candidate.create_cv'))
 
-            filename = secure_filename(cv_file.filename)
-            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-            cv_file.save(file_path)
-            # Lưu đường dẫn tương đối để dùng trong template
-            file_path = os.path.join('uploads', filename)
+        filename = secure_filename(f"{current_user.id}_{cv_file.filename}")
+        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        cv_file.save(file_path)
+        file_path_for_db = os.path.join('uploads', filename)
 
         candidate_profile = dao.get_candidate_profile_by_user_id(current_user.id)
         if candidate_profile:
-            dao.create_new_cv(candidate_id=candidate_profile.id, title=title, file_path=file_path)
-            flash('Tạo CV thành công!', 'success')
+            # Dùng hàm dao cũ để tạo CV chỉ với file
+            dao.create_new_cv(candidate_id=candidate_profile.id, title=title, file_path=file_path_for_db)
+            flash('Upload CV thành công!', 'success')
             return redirect(url_for('candidate.manage_cvs'))
         else:
             flash('Không tìm thấy hồ sơ ứng viên.', 'danger')
 
-    return render_template('cv_create.html')
+    return redirect(url_for('candidate.create_cv'))
 
 @candidate_bp.route('/cvs')
 @login_required

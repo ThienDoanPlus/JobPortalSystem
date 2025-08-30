@@ -1,9 +1,10 @@
 # /JobPortalSystem/JobPortalSystem_app/employer.py
 from .utils import recruiter_required
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
-from . import dao
-from .models import ExperienceLevelEnum, JobTypeEnum, JobPost, db, ApplicationStatusEnum, Application
+from . import dao, momo_service
+from .models import ExperienceLevelEnum, JobTypeEnum, JobPost, db, ApplicationStatusEnum, Application, Payment, \
+    PaymentStatusEnum
 from flask import make_response
 from weasyprint import HTML
 
@@ -47,16 +48,74 @@ def post_job():
             "requirements": request.form.get('requirements'),
             "benefits": request.form.get('benefits')
         }
+        # 1. Tạo tin tuyển dụng với trạng thái CHỜ (active=False)
+        new_job = dao.create_job_post(company_id=company.id, data=job_data, active_status=False)
 
-        # Gọi hàm DAO để tạo tin đăng
-        dao.create_job_post(company_id=company.id, data=job_data)
+        # 2. Tạo yêu cầu thanh toán MoMo
+        payment_amount = 50000  # Phí đăng tin: 50,000 VND
+        order_info = f"Thanh toan phi dang tin: {new_job.title[:50]}"  # MoMo giới hạn độ dài
 
-        flash('Đăng tin tuyển dụng thành công!', 'success')
-        return redirect(url_for('employer.dashboard'))
+        # Cần app_context để url_for hoạt động ngoài request context
+        with current_app.app_context():
+            pay_url, order_id = momo_service.create_momo_payment(payment_amount, order_info)
+
+        if pay_url and order_id:
+            # 3. Lưu thông tin giao dịch vào DB
+            payment = Payment(id=new_job.id, amount=payment_amount, status=PaymentStatusEnum.PENDING,
+                              transaction_id=order_id)
+            db.session.add(payment)
+            db.session.commit()
+
+            # 4. Chuyển hướng NTD sang trang thanh toán của MoMo
+            return redirect(pay_url)
+        else:
+            flash('Tạo thanh toán không thành công. Vui lòng thử lại.', 'danger')
+            db.session.delete(new_job)  # Xóa job đã tạo nếu không tạo được thanh toán
+            db.session.commit()
+            return redirect(url_for('employer.post_job'))
 
     return render_template('employer/post_job.html',
                            job_types=JobTypeEnum,
                            experience_levels=ExperienceLevelEnum)
+
+
+# Route mà MoMo sẽ gọi đến server của bạn để báo kết quả (backend-to-backend)
+@employer_bp.route('/momo_ipn', methods=['POST'])
+def momo_ipn():
+    try:
+        data = request.json
+        result_code = data.get('resultCode')
+        order_id = data.get('orderId')
+
+        # TODO: Bắt buộc phải xác thực chữ ký ở môi trường Production
+
+        if result_code == 0:  # Giao dịch thành công
+            payment = Payment.query.filter_by(transaction_id=order_id, status=PaymentStatusEnum.PENDING).first()
+            if payment:
+                payment.status = PaymentStatusEnum.COMPLETED
+                job_post = JobPost.query.get(payment.id)
+                if job_post:
+                    job_post.active = True
+                db.session.commit()
+                current_app.logger.info(f"Kich hoat thanh cong tin dang ID: {job_post.id}")
+    except Exception as e:
+        current_app.logger.error(f"Loi xu ly IPN: {e}")
+
+    # Luôn trả về 204 để MoMo biết đã nhận được IPN
+    return '', 204
+
+# Route mà người dùng được chuyển về từ MoMo
+@employer_bp.route('/momo_return')
+@login_required
+@recruiter_required
+def momo_return():
+    result_code = request.args.get('resultCode')
+    if result_code == '0':
+        flash('Giao dịch đã được ghi nhận. Tin đăng sẽ được kích hoạt sau vài phút.', 'success')
+    else:
+        flash('Giao dịch không thành công hoặc đã bị hủy.', 'danger')
+    return redirect(url_for('employer.dashboard'))
+
 
 @employer_bp.route('/settings', methods=['GET', 'POST'])
 @login_required

@@ -1,0 +1,50 @@
+/* ---  (Đăng ký / Đăng nhập) --- */
+.auth-card {
+    max-width: 550px;
+    margin: 40px auto;
+}
+
+.auth-card .card-header h2 {
+    text-align: center;
+    border-bottom: none;
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+.auth-card .card-subtitle {
+    text-align: center;
+    color: var(--subtle-text-color);
+    margin-bottom: 30px;
+}
+
+/*  nút bấm trong form xác thực */
+.auth-card .btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+}
+
+/* link "Đã có tài khoản?" */
+.form-footer-link {
+    text-align: center;
+    margin-top: 20px;
+}
+/* ---  (Role Selector)  --- */
+.auth-card .role-selector {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding: 5px 0 15px 0;
+}
+
+.auth-card .role-option {
+    display: flex;
+    align-items: center;
+}
+
+.auth-card .role-option label {
+    display: inline-block;
+    font-weight: normal;
+    margin-left: 8px;
+    cursor: pointer;
+}

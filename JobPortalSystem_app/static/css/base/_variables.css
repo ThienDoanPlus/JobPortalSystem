@@ -1,0 +1,15 @@
+/* --- Định nghĩa bảng màu và font chữ toàn cục --- */
+:root {
+    --primary-color: #2C7A7B;
+    --primary-hover-color: #286A6B;
+    --background-color: #F7FAFC;
+    --card-bg-color: #FFFFFF;
+    --border-color: #E2E8F0;
+    --text-color: #2D3748;
+    --subtle-text-color: #718096;
+    --success-color: #48BB78;
+    --error-color: #E53E3E;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --cv-theme-color: #000000;
+    --builder-header-height: 70px;
+}
