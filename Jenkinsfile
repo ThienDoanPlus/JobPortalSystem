@@ -1,52 +1,73 @@
-// Đây là "Bản Hướng Dẫn Công Việc" cho Jenkins
-pipeline {
-    agent any // Yêu cầu Jenkins tìm một máy trống để làm việc
+// =================================================================
+// == JENKINSFILE HOAN CHINH - PHIEN BAN CI/CD (bat)              ==
+// =================================================================
 
-    // Chia công việc thành các giai đoạn
+pipeline {
+    agent any
+
     stages {
-        // Giai đoạn 1: Lấy mã nguồn
+        // GIAI DOAN 1: Lay ma nguon tu GitHub
         stage('Checkout Code') {
             steps {
-                // Lấy code từ nhánh main của repo này
-                git branch: 'main', url: 'https://github.com/ThienDoanPlus/JobPortalSystem.git'
+                // Lệnh này sẽ tự động checkout code từ cấu hình của job
+                // Jenkins sẽ tự động di chuyển vào thư mục workspace chứa code này
+                checkout scm
+                echo "✅ Da checkout code thanh cong."
             }
         }
 
-        // Giai đoạn 2: Đóng gói ứng dụng vào "hộp" Docker
+        // GIAI DOAN 2: Build Docker Image
         stage('Build Docker Image') {
             steps {
-                // Đọc file Dockerfile và build ra một image tên là "thiendoanplus/job-portal"
-                sh 'docker build -t nguyenkhoineee/job-portal .'
+                // Không cần dir(...) nữa vì Jenkins đã ở đúng thư mục workspace
+                echo '🚀 Bat dau build Docker image...'
+                bat 'docker build -t nguyenkhoineee/job-portal-system .' // <-- Thay đổi Docker Hub ID nếu cần
+                echo '✅ Da build xong image.'
             }
         }
 
-        // Giai đoạn 3: Chạy kiểm thử tự động
+        // GIAI DOAN 3: Chay Unit Test
         stage('Run Unit Tests') {
             steps {
-                // Chạy các bài test bên trong "hộp" Docker để đảm bảo chất lượng
-                sh 'docker run --rm nguyenkhoineee/job-portal python -m pytest'
+                echo '🔬 Bat dau chay unit tests...'
+                bat 'docker run --rm nguyenkhoineee/job-portal-system python -m pytest' // <-- Thay đổi Docker Hub ID nếu cần
+                echo '✅ Tat ca cac test da qua!'
             }
         }
 
-        // Giai đoạn 4 (Tùy chọn): Đẩy "hộp" lên kho chứa
+        // GIAI DOAN 4: Day Image len Docker Hub
         stage('Push to Docker Hub') {
             steps {
-                // Dùng credentials đã lưu trong Jenkins để đăng nhập và đẩy image lên
+                echo '📦 Dang chuan bi xac thuc voi Docker Hub...'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh 'docker push nguyenkhoineee/job-portal'
+                    script {
+                        // Tạo chuỗi xác thực Base64
+                        def auth = "${DOCKER_USER}:${DOCKER_PASS}".bytes.encodeBase64().toString()
+                        def config = """{"auths":{"https://index.docker.io/v1/":{"auth":"${auth}"}}}"""
+
+                        // Ghi file config.json vào thư mục home của user đang chạy Jenkins
+                        bat """
+                            mkdir %USERPROFILE%\\.docker 2>nul || exit 0
+                            echo ${config} > %USERPROFILE%\\.docker\\config.json
+                        """
+                    }
+
+                    // Chạy docker push
+                    echo '📦 Dang day image len Docker Hub...'
+                    bat 'docker push nguyenkhoineee/job-portal-system' // <-- Thay đổi Docker Hub ID nếu cần
                 }
+                echo '✅ Da day image thanh cong.'
             }
         }
 
-        // Giai đoạn 5: Triển khai ứng dụng lên server
+        // GIAI DOAN 5: Trien khai ung dung
         stage('Deploy Application') {
             steps {
-                // Dừng và xóa container cũ (nếu có)
-                sh 'docker stop job-portal-container || true'
-                sh 'docker rm job-portal-container || true'
-                // Chạy container mới từ image vừa build
-                sh 'docker run -d --name job-portal-container -p 5000:5000 nguyenkhoineee/job-portal'
+                echo '🚚 Bat dau trien khai ung dung...'
+                bat 'docker stop job-portal-container || exit 0'
+                bat 'docker rm job-portal-container || exit 0'
+                bat 'docker run -d --name job-portal-container -p 5000:5000 nguyenkhoineee/job-portal-system' // <-- Thay đổi Docker Hub ID nếu cần
+                echo '🎉 Ung dung da duoc trien khai thanh cong va dang chay!'
             }
         }
     }
