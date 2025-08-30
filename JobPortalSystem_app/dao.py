@@ -29,11 +29,9 @@ def load_user(user_id):
     Mật khẩu sẽ được hash trước khi lưu.
     """
 def create_user(username, email, password, role, full_name=None, company_name=None):
-
     # Hash mật khẩu để bảo mật
     hashed_password = generate_password_hash(password)
 
-    # ----------------------
     new_user = User(
         username=username,
         email=email,

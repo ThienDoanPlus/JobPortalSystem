@@ -1,5 +1,7 @@
 # file dùng để chạy app và cấu hình các extension
 import os
+from urllib.parse import quote
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate

@@ -6,11 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Job Portal{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block head %}{% endblock %}
     {% block styles %}{% endblock %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
           integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='image/logo.png') }}">
 </head>
 <body>
     <!-- HEADER -->
@@ -29,10 +32,11 @@
                     {% elif current_user.role.name == 'RECRUITER' %}
                         <a href="{{ url_for('employer.dashboard') }}">Quản lý tin đăng</a>
                         <a href="{{ url_for('employer.post_job') }}">Đăng tin mới</a>
+                        <a href="{{ url_for('employer.stats') }}">Thống kê</a>
                     {% endif %}
                 {% endif %}
 
-                <a href="#">Công Ty</a>
+                <a href="{{ url_for('main.company_list') }}">Công Ty</a>
             </div>
 
             <!-- Phần bên phải: Hành động của người dùng -->
@@ -52,6 +56,11 @@
                             <a href="{{ url_for('auth.logout') }}">Đăng xuất</a>
                         </div>
                     </div>
+                    {% if current_user.role.name == 'RECRUITER' %}
+                        <a href="{{ url_for('employer.post_job') }}" class="btn btn-primary" style="margin-left: 20px;">
+                            Đăng tuyển ngay <i class="fas fa-arrow-right"></i>
+                        </a>
+                    {% endif %}
                 {% else %}
                     <a href="{{ url_for('auth.login') }}">Đăng nhập</a>
                     <a href="{{ url_for('auth.register') }}" class="btn btn-outline">Đăng ký</a>
@@ -96,17 +105,17 @@
                 </div>
                 <div class="footer-col">
                     <h4>Ứng viên</h4>
-                    <a href="#">Tìm việc làm</a>
-                    <a href="#">Tạo CV</a>
+                    <a href="{{ url_for('main.home') }}">Tìm việc làm</a>
+                    <a href="{{ url_for('candidate.create_cv') }}">Tạo CV</a>
                 </div>
-                 <div class="footer-col">
+                <div class="footer-col">
                     <h4>Nhà tuyển dụng</h4>
-                    <a href="#">Đăng tin tuyển dụng</a>
+                    <a href="{{ url_for('employer.post_job') }}">Đăng tin tuyển dụng</a>
                     <a href="#">Tìm kiếm hồ sơ</a>
                 </div>
             </div>
         </div>
     </footer>
-{% block scripts %}{% endblock %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>
