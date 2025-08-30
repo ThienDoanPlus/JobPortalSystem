@@ -1,0 +1,85 @@
+<!-- /templates/admin/dashboard.html -->
+{% extends 'admin/master.html' %}
+
+{% block body %}
+{{ super() }}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Bảng điều khiển</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa fa-bar-chart-o fa-fw"></i> Thống kê Doanh thu theo Tháng
+                    <div class="float-right">
+                        <button id="barChartBtn" class="btn btn-sm btn-info">Biểu đồ Cột</button>
+                        <button id="lineChartBtn" class="btn btn-sm btn-secondary">Biểu đồ Đường</button>
+                        <button id="pieChartBtn" class="btn btn-sm btn-secondary">Biểu đồ Tròn</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block tail %}
+{{ super() }}
+<!-- 1. Tải thư viện Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 2. Lấy dữ liệu từ Python (Flask)
+        const chartLabels = {{ chart_labels|tojson }};
+        const chartData = {{ chart_data|tojson }};
+
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+
+        // 3. Khởi tạo biểu đồ
+        const revenueChart = new Chart(ctx, {
+            type: 'bar', // Loại biểu đồ mặc định
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Doanh thu (VND)',
+                    data: chartData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 4. Bắt sự kiện click để đổi loại biểu đồ
+        document.getElementById('barChartBtn').addEventListener('click', () => {
+            revenueChart.config.type = 'bar';
+            revenueChart.update();
+        });
+
+        document.getElementById('lineChartBtn').addEventListener('click', () => {
+            revenueChart.config.type = 'line';
+            revenueChart.update();
+        });
+
+        document.getElementById('pieChartBtn').addEventListener('click', () => {
+            revenueChart.config.type = 'pie';
+            revenueChart.update();
+        });
+    });
+</script>
+{% endblock %}

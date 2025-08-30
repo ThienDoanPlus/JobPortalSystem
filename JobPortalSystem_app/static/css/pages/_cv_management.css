@@ -1,0 +1,222 @@
+/* --- Trang Quản lý CV --- */
+.cv-management-page {
+    padding: 30px;
+    background-color: #f9fafb; /* Một màu nền nhẹ nhàng */
+    border-radius: 8px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.page-header h2 {
+    margin: 0;
+    color: #111827;
+}
+
+.btn-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa icon và chữ */
+}
+
+.cv-count {
+    margin-bottom: 30px;
+    color: #6b7280;
+}
+
+.cv-grid {
+    display: grid;
+    /* Hiển thị các thẻ CV trên một lưới, tự động xuống hàng */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.cv-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cv-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+/* 1. SỬA LỖI HÌNH ẢNH */
+.cv-card-preview {
+    height: 160px; /* Chiều cao cố định cho vùng chứa ảnh */
+    background-color: #e5e7eb;
+    overflow: hidden; /* Ẩn phần ảnh thừa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cv-card-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* <--- Sửa thành 'contain' */
+    padding: 10px; /* Thêm một chút đệm để icon không bị dính vào viền */
+    transition: transform 0.3s ease;
+}
+
+.cv-card:hover .cv-card-preview img {
+    transform: scale(1.05); /* Hiệu ứng zoom nhẹ khi hover */
+}
+
+.cv-card-body {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.cv-title {
+    margin: 0 0 10px 0;
+    color: #1f2937;
+    font-size: 1.1rem;
+    /* Ngăn tiêu đề quá dài */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cv-meta {
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+
+.cv-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; /* Căn các item theo chiều dọc */
+    gap: 8px; /* Tạo khoảng cách đều giữa các nút */
+    padding: 10px 15px;
+    border-top: 1px solid #f3f4f6;
+    background-color: #f9fafb;
+}
+
+/* Reset lại style cho form để nó hoạt động như một phần tử flex */
+.delete-form {
+    margin: 0;
+    padding: 0;
+    line-height: 0; /* Loại bỏ khoảng trắng thừa của form */
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0; /* Reset padding */
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex; /* Dùng flex để căn icon vào giữa */
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+/* Các màu sắc giữ nguyên */
+.action-btn.view { color: #3b82f6; }
+.action-btn.view:hover { background-color: #dbeafe; }
+
+.action-btn.edit { color: #f59e0b; }
+.action-btn.edit:hover { background-color: #fef3c7; }
+
+.action-btn.delete { color: #ef4444; }
+.action-btn.delete:hover { background-color: #fee2e2; }
+
+.delete-form {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+/* --- Trạng thái Rỗng (Empty State) --- */
+.empty-state-container {
+    text-align: center;
+    padding: 80px 40px;
+    background-color: #fff;
+    border-radius: 12px;
+    border: 2px dashed #e5e7eb;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    opacity: 0.6;
+}
+/* --- CV_manage --- */
+.card-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+.card-header-actions h2 {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* --- Tùy chỉnh cho List Group --- */
+.list-group-item {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.list-group-item-info {
+    display: flex;
+    flex-direction: column;
+}
+.metadata {
+    font-size: 0.85em;
+    color: var(--subtle-text-color);
+    margin-top: 5px;
+}
+
+.list-group-item-actions .btn-action {
+    font-size: 1.2em;
+    margin-left: 20px;
+    color: var(--subtle-text-color);
+}
+.list-group-item-actions .btn-action:hover {
+    color: var(--primary-color);
+}
+.text-danger, .text-danger:hover {
+    color: var(--error-color) !important;
+}
+
+/* --- Trạng thái trống  --- */
+.empty-state {
+    text-align: center;
+    padding: 50px 30px;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    margin-top: 20px;
+}
+.empty-state-icon {
+    font-size: 3.5em;
+    color: var(--border-color);
+    margin-bottom: 20px;
+}
+.empty-state h4 {
+    font-size: 1.4em;
+    color: var(--text-color);
+    margin: 0 0 10px 0;
+}
+.empty-state p {
+    color: var(--subtle-text-color);
+    margin-bottom: 25px;
+}

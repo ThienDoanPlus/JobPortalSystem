@@ -54,11 +54,20 @@ def login():
 
         # Kiểm tra user và mật khẩu
         if user and dao.check_password(user, password):
-            login_user(user) # Hàm của Flask-Login để đăng nhập user
+            # BƯỚC 2: NẾU ĐÚNG, THỰC HIỆN ĐĂNG NHẬP
+            login_user(user)
             flash('Đăng nhập thành công!', 'success')
-            return redirect(url_for('main.home')) # Chuyển về trang chủ
+
+            # BƯỚC 3: KIỂM TRA VAI TRÒ ĐỂ CHUYỂN HƯỚNG
+            if user.role == RoleEnum.ADMIN:
+                return redirect(url_for('admin.index'))
+            else:
+                return redirect(url_for('main.home'))
         else:
+            # BƯỚC 4: NẾU SAI, THÔNG BÁO LỖI
             flash('Tên đăng nhập hoặc mật khẩu không đúng.', 'danger')
+            # Quay lại trang login để người dùng thử lại
+            return redirect(url_for('auth.login'))
 
     return render_template('login.html')
 

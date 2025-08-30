@@ -1,0 +1,160 @@
+/* /static/css/pages/_cv_editor.css */
+
+/* --- BIẾN CỤC BỘ & LAYOUT CHÍNH --- */
+:root {
+    --editor-sidebar-width: 360px;
+    --editor-header-height: 70px; /* Chiều cao header chính */
+    --editor-panel-header-height: 65px;
+}
+
+.cv-editor-container {
+    display: grid;
+    grid-template-columns: var(--editor-sidebar-width) 1fr;
+    height: calc(100vh - var(--editor-header-height));
+    overflow: hidden; /* Ngăn cuộn toàn trang */
+}
+
+/* --- CỘT 1: SIDEBAR CÔNG CỤ --- */
+.editor-sidebar {
+    background: #ffffff;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    transition: margin-left 0.3s ease; /* Hiệu ứng trượt */
+}
+
+.sidebar-main-nav {
+    width: 60px;
+    background: #f8f9fa;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.nav-back {
+    padding: 15px 0;
+    font-size: 1.2rem;
+    color: var(--subtle-text-color);
+    margin-bottom: 10px;
+}
+.nav-tab {
+    background: none; border: none;
+    width: 45px; height: 45px;
+    border-radius: 8px; font-size: 1.2rem;
+    cursor: pointer; color: var(--subtle-text-color);
+    transition: all 0.2s;
+}
+.nav-tab:hover { background: #e5e7eb; }
+.nav-tab.active { background: var(--primary-color); color: white; }
+
+.sidebar-panels {
+    width: calc(var(--editor-sidebar-width) - 60px);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-panel {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    animation: fadeIn 0.3s;
+}
+.sidebar-panel.active { display: flex; }
+
+.panel-header {
+    padding: 0 20px;
+    height: var(--editor-panel-header-height);
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+.panel-header h4 { margin: 0; font-size: 1.2rem; }
+
+.panel-body {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* --- CỘT 2: KHÔNG GIAN LÀM VIỆC --- */
+.editor-workspace {
+    background-color: #f3f4f6;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Ngăn cuộn */
+}
+
+.workspace-header {
+    background: #fff;
+    padding: 0 25px;
+    height: var(--editor-panel-header-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+#save-status { font-style: italic; color: var(--subtle-text-color); transition: all 0.3s; font-size: 0.9rem; }
+#save-status.saving { color: #f59e0b; }
+#save-status.saved { color: #48BB78; }
+.workspace-actions { display: flex; gap: 10px; }
+
+.workspace-sheet-wrapper {
+    flex-grow: 1;
+    overflow-y: auto; /* Cho phép cuộn CV */
+    padding: 30px;
+}
+
+.cv-preview-sheet {
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+    padding: 20mm;
+    margin: 0 auto;
+    transition: box-shadow 0.3s;
+}
+
+/* --- STYLE TƯƠNG TÁC TRÊN CV --- */
+[contenteditable="true"]:hover {
+    outline: 2px dashed #a0aec0;
+    background-color: #f8f9fa;
+}
+[contenteditable="true"]:focus {
+    outline: 2px solid var(--primary-color);
+    background-color: #e6fffa;
+    box-shadow: 0 0 10px rgba(44, 122, 123, 0.2);
+}
+
+.cv-section-preview {
+    position: relative;
+    padding: 10px 0;
+}
+.section-action-bar {
+    display: none;
+    position: absolute;
+    top: 5px;
+    right: 100%;
+    margin-right: 15px;
+    background: white;
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    padding: 5px;
+    flex-direction: column;
+    gap: 5px;
+}
+.cv-section-preview:hover > .section-action-bar {
+    display: flex;
+}
+.action-btn { background: none; border: none; cursor: pointer; width: 32px; height: 32px; border-radius: 6px; font-size: 1rem; color: var(--subtle-text-color); }
+.action-btn:hover { background-color: #e5e7eb; color: var(--text-color); }
+
+/* Thêm style cho các mục trong form sidebar */
+.form-section-item { padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e5e7eb; }
+.btn-add-item { width: 100%; padding: 10px; border: 2px dashed #d1d5db; background: #f9fafb; transition: all 0.2s; color: var(--subtle-text-color); }
+.btn-add-item:hover { background: #e5e7eb; border-color: #9ca3af; }

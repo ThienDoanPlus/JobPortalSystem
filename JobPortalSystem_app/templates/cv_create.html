@@ -1,27 +1,63 @@
 <!-- /templates/cv_create.html -->
 {% extends "base.html" %}
 
-{% block title %}Tạo CV Mới{% endblock %}
+{% block title %}Bắt đầu tạo CV của bạn{% endblock %}
 
 {% block content %}
-<div class="card auth-card">
-    <div class="card-header">
-        <h2>Tạo một Hồ sơ (CV) mới</h2>
+<div class="creation-hub-page">
+    <div class="hub-header">
+        <h1>Bắt đầu hành trình mới của bạn</h1>
+        <p>Chọn một cách để tạo hồ sơ và gây ấn tượng với nhà tuyển dụng mơ ước.</p>
     </div>
-    <form method="post" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="title">Tiêu đề CV:</label>
-            <input type="text" id="title" name="title" class="form-control"
-                   placeholder="Ví dụ: CV ứng tuyển Lập trình viên Python" required>
-        </div>
 
-        <!-- TRƯỜNG UPLOAD FILE -->
-        <div class="form-group">
-            <label for="cv_file">Tải lên CV có sẵn (Tùy chọn, PDF, max 10MB)</label>
-            <input type="file" id="cv_file" name="cv_file" class="form-control" accept=".pdf">
+    <!-- KHU VỰC CÁC LỰA CHỌN KHỞI ĐẦU -->
+    <div class="start-options">
+        <!-- Tải lên CV -->
+        <div class="start-card" onclick="document.getElementById('upload-form-section').style.display='block';">
+            <div class="start-card-icon"><i class="fas fa-file-upload"></i></div>
+            <h4>Tải lên CV có sẵn</h4>
+            <p>Sử dụng CV PDF của bạn để bắt đầu ứng tuyển ngay.</p>
         </div>
+        <!-- Tạo CV trống -->
+        {% set blank_template = cv_templates|selectattr('template_name', 'equalto', 'BLANK_TEMPLATE')|first %}
+        {% if blank_template %}
+        <form action="{{ url_for('candidate.create_cv_from_template', template_id=blank_template.id) }}" method="POST">
+            <button type="submit" class="start-card">
+                <div class="start-card-icon"><i class="fas fa-file"></i></div>
+                <h4>Tạo CV trống</h4>
+                <p>Tự xây dựng CV của bạn từ đầu.</p>
+            </button>
+        </form>
+        {% endif %}
+    </div>
 
-        <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Tạo CV</button>
-    </form>
+    <!-- Form upload ẩn, chỉ hiện ra khi cần -->
+    <div id="upload-form-section" class="hub-section upload-section" style="display:none;">
+        <form action="{{ url_for('candidate.upload_cv') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+            <input type="text" name="title" class="form-control" placeholder="Đặt tên cho CV của bạn..." required>
+            <input type="file" name="cv_file" class="form-control" accept=".pdf" required>
+            <button type="submit" class="btn btn-primary">Tải lên</button>
+        </form>
+    </div>
+
+    <!-- KHU VỰC CHỌN MẪU -->
+    <div class="hub-section">
+        <h3><i class="fas fa-palette"></i> Hoặc, bắt đầu với một mẫu chuyên nghiệp</h3>
+        <div class="template-gallery">
+            {% for template in cv_templates %}
+            <div class="template-card">
+                <img src="{{ template.thumbnail_url or url_for('static', filename='image/cv_thumbnail.png') }}" alt="{{ template.template_name }}">
+                <div class="template-overlay">
+                    <div class="overlay-content">
+                        <h5>{{ template.template_name }}</h5>
+                        <form action="{{ url_for('candidate.create_cv_from_template', template_id=template.id) }}" method="POST">
+                             <button type="submit" class="btn btn-primary">Sử dụng mẫu này</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock %}

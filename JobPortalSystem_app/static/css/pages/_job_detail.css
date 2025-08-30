@@ -1,0 +1,124 @@
+/*CSS JOBDETAIL*/
+/* Style cho tiêu đề section */
+.job-section h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* Breadcrumb trong suốt */
+.breadcrumb {
+  background-color: transparent !important;
+}
+
+/* Card shadow */
+.card.shadow-sm {
+  border: none;
+}
+
+/* Logo công ty */
+.company-logo img {
+  object-fit: cover;
+  width: 100px;
+  height: 100px;
+}
+
+/* Sidebar sticky */
+.position-sticky {
+  /*position: -webkit-sticky;*/
+  position: sticky;
+}
+
+/* Nút ứng tuyển full-width */
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+/* Căn giữa nội dung text-muted */
+.card .text-muted {
+  font-size: 0.9rem;
+}
+
+.suggest-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 20px;
+    z-index: 10;
+    display: none;
+}
+
+.suggest-box ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.suggest-box li a {
+    text-decoration: none;
+    display: block;
+    padding: 5px 0;
+    color: #333;
+}
+
+.suggest-box li a:hover {
+    background-color: #f1f1f1;
+    border-radius: 4px;
+    padding-left: 5px;
+}
+
+.radio-group {
+    margin-bottom: 10px;
+}
+
+.radio-group label {
+    margin-right: 15px;
+    font-weight: 500;
+}
+.radio-group label {
+    display: inline-block;
+    margin-right: 15px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.radio-group input[type="radio"] {
+    margin-right: 5px;
+}
+.radio-group label {
+    color: black;
+}
+.text {
+    color: black;
+    text-align: left;
+}
+.suggest-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.suggest-list li {
+    display: flex;
+    align-items: center;
+}
+
+.suggest-list li::before {
+    content: "📈";
+    margin-right: 6px;
+    font-size: 1rem;
+    display: inline-block;
+}
+.full-width-image {
+  width: 100%;
+  height: 200px;
+  display: block;
+  border-radius: 15px;
+  margin-top: 20px;
+}

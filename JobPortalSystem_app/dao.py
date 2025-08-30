@@ -1,7 +1,9 @@
 import json
+import os
+
 from .models import (
     User, CandidateProfile, Company, RoleEnum, Resume, Experience, Education,
-    JobPost, Application, ApplicationStatusEnum, db
+    JobPost, Application, ApplicationStatusEnum, db, Skill
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import login_manager
@@ -10,6 +12,8 @@ from sqlalchemy.exc import IntegrityError
 from flask import current_app
 from werkzeug.utils import secure_filename
 from .utils import send_application_emails
+from sqlalchemy.orm import joinedload
+
 
 # Hàm Flask-Login sẽ dùng nó để lấy thông tin user
 # từ session mỗi khi bạn tải lại trang.
@@ -25,9 +29,11 @@ def load_user(user_id):
     Mật khẩu sẽ được hash trước khi lưu.
     """
 def create_user(username, email, password, role, full_name=None, company_name=None):
+
     # Hash mật khẩu để bảo mật
     hashed_password = generate_password_hash(password)
 
+    # ----------------------
     new_user = User(
         username=username,
         email=email,
@@ -74,9 +80,80 @@ def create_new_cv(candidate_id, title, file_path=None):
     db.session.commit()
     return new_cv
 
+"""Tạo một CV mới cho ứng viên bằng cách sao chép từ một mẫu có sẵn."""
+
+
+def clone_cv_from_template(template_id, candidate_id):
+    """
+    Tạo một CV mới cho ứng viên bằng cách sao chép từ một mẫu có sẵn.
+    """
+    # 1. Tìm mẫu gốc trong database
+    template = Resume.query.filter_by(id=template_id, is_template=True).first()
+
+    # Trả về None nếu không tìm thấy mẫu
+    if not template:
+        return None
+
+    # 2. Tạo tiêu đề mặc định cho CV mới
+    final_title = f"CV theo mẫu {template.template_name}"
+
+    # 3. Tạo đối tượng Resume mới, sao chép TẤT CẢ thuộc tính style
+    new_cv = Resume(
+        candidate_id=candidate_id,
+        title=final_title,
+        font_family=template.font_family,
+        font_size=template.font_size,
+        line_spacing=template.line_spacing,
+        theme_color=template.theme_color,
+        background_style=template.background_style,
+        is_template=False  # CV mới không phải là mẫu
+    )
+    db.session.add(new_cv)
+
+    # 4. Sao chép tất cả các mục con (kinh nghiệm, học vấn, kỹ năng)
+    for exp in template.experiences:
+        new_exp = Experience(resume=new_cv, job_title=exp.job_title, company_name=exp.company_name,
+                             description=exp.description)
+        db.session.add(new_exp)
+
+    for edu in template.educations:
+        new_edu = Education(resume=new_cv, institution_name=edu.institution_name, degree=edu.degree, major=edu.major)
+        db.session.add(new_edu)
+
+    for skill in template.skills:
+        new_skill = Skill(resume=new_cv, skill_name=skill.skill_name)
+        db.session.add(new_skill)
+
+    # 5. Lưu tất cả thay đổi vào database
+    try:
+        db.session.commit()
+        return new_cv
+    except Exception as e:
+        db.session.rollback()
+        print(f"Lỗi khi clone CV: {e}")
+        return None
+
+
 """Lấy một CV cụ thể bằng ID của nó."""
 def get_cv_by_id(cv_id):
-    return Resume.query.get(cv_id)
+    """
+    Lấy một CV cụ thể bằng ID, đồng thời tải sẵn (eager load) các
+    mối quan hệ cần thiết để tránh lỗi N+1 và DetachedInstanceError.
+    """
+    return (
+        Resume.query
+        .options(
+            # JOIN đến CandidateProfile và User trong cùng 1 query
+            joinedload(Resume.candidate).joinedload(CandidateProfile.user),
+            # JOIN sẵn đến experiences và educations
+            joinedload(Resume.experiences),
+            joinedload(Resume.educations),
+            joinedload(Resume.skills)
+
+        )
+        .filter_by(id=cv_id)
+        .first()
+    )
 
 """Tạo một bản ghi Experience mới và liên kết nó với một CV."""
 def add_experience_to_cv(cv_id, job_title, company_name, description):
@@ -108,7 +185,7 @@ def get_company_by_user_id(user_id):
     return Company.query.filter_by(user_id=user_id).first()
 
 """Tạo một JobPost mới trong CSDL."""
-def create_job_post(company_id, data):
+def create_job_post(company_id, data, active_status=True):
     salary_min = data.get('salary_min') or None
     salary_max = data.get('salary_max') or None
 
@@ -122,7 +199,9 @@ def create_job_post(company_id, data):
         salary_min=salary_min,
         salary_max=salary_max,
         job_type=data.get('job_type'),
-        experience_level=data.get('experience_level')
+        experience_level=data.get('experience_level'),
+        active = active_status  # Sử dụng tham số này
+
     )
     db.session.add(new_job)
     db.session.commit()

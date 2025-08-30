@@ -5,70 +5,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xem trước: {{ cv.title }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Tải Font từ Google Fonts để CV đẹp hơn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            .cv-header, .cv-header h3, .cv-header p {
-                text-align: center !important;
-                text-transform: uppercase !important;
-                font-weight: bold !important;
-            }
-            .cv-item-title {
-                font-weight: bold !important;
-            }
-        }
-    </style>
+    <!-- Link đến file CSS chính của bạn -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
-<body class="preview-body">
+<body class="cv-preview-body">
+
+    <!-- THANH HÀNH ĐỘNG Ở TRÊN -->
+    <div class="preview-actions no-print">
+        <a href="javascript:history.back()" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại</a>
+        <button onclick="window.print()" class="btn btn-primary"><i class="fas fa-print"></i> In hoặc Lưu PDF</button>
+    </div>
+
+    <!-- KHUNG CHỨA CV -->
     <div class="preview-container">
-        <div class="preview-actions">
-            <button onclick="window.print()" class="btn btn-primary no-print"><i class="fas fa-print"></i> In CV</button>
-            <a href="{{ url_for('employer.download_cv_pdf', cv_id=cv.id) }}" class="btn btn-outline no-print">
-                <i class="fas fa-download"></i> Tải xuống PDF
-            </a>
-        </div>
-
-        <!--  CV -->
+        <!-- TỜ GIẤY CV -->
         <div class="preview-sheet">
-            <div class="cv-header">
-                <h3>{{ cv.candidate.full_name }}</h3>
-                <p>{{ cv.title }}</p>
-            </div>
 
-            <!-- Phần Kinh nghiệm -->
-            <div class="cv-section">
-                <h4><i class="fas fa-briefcase"></i> KINH NGHIỆM LÀM VIỆC</h4>
+            <!-- PHẦN HEADER: TÊN VÀ THÔNG TIN LIÊN HỆ -->
+            <header class="cv-header-preview">
+                <h1>{{ cv.candidate.full_name }}</h1>
+                <p class="cv-subtitle-preview">{{ cv.title }}</p>
+                <div class="contact-info">
+                    {% if cv.candidate.user.email %}
+                    <span><i class="fas fa-envelope"></i> {{ cv.candidate.user.email }}</span>
+                    {% endif %}
+                    {% if cv.candidate.phone_number %}
+                    <span><i class="fas fa-phone"></i> {{ cv.candidate.phone_number }}</span>
+                    {% endif %}
+                    {% if cv.candidate.address %}
+                    <span><i class="fas fa-map-marker-alt"></i> {{ cv.candidate.address }}</span>
+                    {% endif %}
+                    {% if cv.candidate.linkedin_url %}
+                    <span><i class="fab fa-linkedin"></i> <a href="{{ cv.candidate.linkedin_url }}" target="_blank">LinkedIn</a></span>
+                    {% endif %}
+                </div>
+            </header>
+
+            <!-- PHẦN KINH NGHIỆM LÀM VIỆC -->
+            <section class="cv-section-preview">
+                <h2 class="section-title-preview">KINH NGHIỆM LÀM VIỆC</h2>
                 {% if cv.experiences %}
                     {% for exp in cv.experiences %}
-                    <div class="cv-item">
-                        <div class="cv-item-title">Vị trí ứng tuyển: {{ exp.job_title }}</div>
-                        <div class="cv-item-subtitle">Công ty: {{ exp.company_name }}</div>
-                        <div class="cv-item-description">Mô tả: {{ exp.description }}</div>
+                    <div class="cv-item-preview">
+                        <div class="item-header">
+                            <h3 class="item-title">{{ exp.job_title }}</h3>
+                            <span class="item-date">
+                                <!-- Hiển thị ngày tháng -->
+                                {{ exp.start_date.strftime('%m/%Y') if exp.start_date else '' }} -
+                                {{ exp.end_date.strftime('%m/%Y') if exp.end_date else 'Hiện tại' }}
+                            </span>
+                        </div>
+                        <h4 class="item-subtitle">{{ exp.company_name }}</h4>
+                        <p class="item-description">{{ exp.description | safe }}</p>
                     </div>
                     {% endfor %}
                 {% else %}
                     <p class="cv-empty-section">Chưa có thông tin kinh nghiệm.</p>
                 {% endif %}
-            </div>
+            </section>
 
-            <!-- Phần Học vấn -->
-            <div class="cv-section">
-                <h4><i class="fas fa-graduation-cap"></i> HỌC VẤN</h4>
+            <!-- PHẦN HỌC VẤN -->
+            <section class="cv-section-preview">
+                <h2 class="section-title-preview">HỌC VẤN</h2>
                 {% if cv.educations %}
                     {% for edu in cv.educations %}
-                    <div class="cv-item">
-                        <div class="cv-item-title">Chuyên ngành: {{ edu.degree }} - {{ edu.major }}</div>
-                        <div class="cv-item-subtitle">Trường: {{ edu.institution_name }}</div>
+                    <div class="cv-item-preview">
+                         <div class="item-header">
+                            <h3 class="item-title">{{ edu.institution_name }}</h3>
+                            <span class="item-date">{{ edu.graduation_date.strftime('%Y') if edu.graduation_date else '' }}</span>
+                        </div>
+                        <h4 class="item-subtitle">{{ edu.degree }} - {{ edu.major }}</h4>
                     </div>
                     {% endfor %}
                 {% else %}
                     <p class="cv-empty-section">Chưa có thông tin học vấn.</p>
                 {% endif %}
-            </div>
+            </section>
+
+            <!-- PHẦN KỸ NĂNG -->
+            <section class="cv-section-preview">
+                <h2 class="section-title-preview">KỸ NĂNG</h2>
+                {% if cv.skills %}
+                    <div class="skills-list">
+                    {% for skill in cv.skills %}
+                        <span class="skill-tag">{{ skill.skill_name }}</span>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="cv-empty-section">Chưa có thông tin kỹ năng.</p>
+                {% endif %}
+            </section>
+
         </div>
     </div>
 </body>

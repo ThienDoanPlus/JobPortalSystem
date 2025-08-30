@@ -1,0 +1,115 @@
+/* --- Hero Section & Search Bar  --- */
+.hero-section {
+    background: linear-gradient(to right, #2C7A7B, #319795);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+}
+.hero-section h1 {
+    color: white;
+    font-size: 2.5em;
+    margin-top: 0;
+}
+.hero-section p {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+.search-bar {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.search-input {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    margin-right: 15px;
+}
+.search-input i {
+    color: var(--subtle-text-color);
+    margin-right: 10px;
+}
+.search-input input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 16px;
+}
+.search-btn {
+    padding-left: 30px;
+    padding-right: 30px;
+}
+.search-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.search-input {
+    position: relative;
+    flex: 1;
+}
+
+.search-input i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #888;
+    z-index: 2;
+}
+
+.search-input input {
+    padding-left: 40px;
+    z-index: 1;
+    position: relative;
+}
+
+.job-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.job-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    background: white;
+    transition: box-shadow 0.3s ease;
+}
+
+.job-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.job-card h3 a {
+    color: #2c5aa0;
+    text-decoration: none;
+}
+
+.company-name {
+    color: #666;
+    font-weight: 500;
+}
+
+.job-tags {
+    margin: 10px 0;
+}
+
+.tag {
+    background: #f0f0f0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 5px;
+}

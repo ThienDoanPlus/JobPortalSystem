@@ -1,0 +1,30 @@
+/* /static/css/pages/_cv_create.css */
+.creation-hub-page { max-width: 1100px; margin: 40px auto; }
+.hub-header { text-align: center; margin-bottom: 50px; }
+.hub-header h1 { font-size: 2.8rem; margin-bottom: 10px; }
+.hub-header p { font-size: 1.1rem; color: var(--subtle-text-color); }
+.start-options { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+.start-card { background: var(--card-bg-color); padding: 30px; border-radius: 12px; box-shadow: var(--shadow); text-align: center; cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--border-color); width: 100%; }
+.start-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-color: var(--primary-color); }
+.start-card-icon { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 15px; }
+.start-card h4 { font-size: 1.3rem; margin-bottom: 10px; }
+.start-card p { color: var(--subtle-text-color); }
+.upload-section { margin-top: -20px; } /* Để nó gần hơn một chút */
+.upload-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: center; }
+.hub-section { background: var(--card-bg-color); padding: 30px; border-radius: 12px; box-shadow: var(--shadow); }
+.hub-section h3 { margin-top: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+.template-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; margin-top: 20px; }
+.template-card { position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; border: 1px solid var(--border-color); }
+.template-card img { display: block; width: 100%; transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+.template-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 60%); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.4s ease; padding: 20px; text-align: center; }
+.template-card:hover .template-overlay { opacity: 1; }
+.template-card:hover img { transform: scale(1.05); }
+.overlay-content { transform: translateY(20px); transition: transform 0.4s ease, opacity 0.4s ease; opacity: 0; transition-delay: 0.1s;}
+.template-card:hover .overlay-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+.overlay-content h5 { font-size: 1.2rem; margin-bottom: 15px; }
+.overlay-content form {
+    margin-top: 0; /* Bỏ margin-top không cần thiết */
+}

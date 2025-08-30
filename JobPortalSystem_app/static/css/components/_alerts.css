@@ -1,0 +1,4 @@
+.alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; font-weight: bold; }
+.alert-success { background-color: #C6F6D5; color: #2F855A; }
+.alert-danger { background-color: #FED7D7; color: #C53030; }
+.alert-info { background-color: #BEE3F8; color: #2B6CB0; }

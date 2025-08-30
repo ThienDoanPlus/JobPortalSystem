@@ -19,6 +19,17 @@
                 <li class="list-group-item">
                     <div class="list-group-item-info">
                         <strong>{{ job.title }}</strong>
+                        <!-- THÊM ĐOẠN NÀY -->
+                        {% if job.active %}
+                        <span class="badge" style="background-color: #28a745; color: white;">Đang hoạt động</span>
+                        {% elif job.payment and job.payment.status.name == 'COMPLETED' %}
+                        <span class="badge" style="background-color: #28a745; color: white;">Đã thanh toán</span>
+                        {% elif job.payment and job.payment.status.name == 'PENDING' %}
+                        <span class="badge" style="background-color: #ffc107; color: #212529;">Chờ thanh toán</span>
+                        {% else %}
+                        <span class="badge" style="background-color: #dc3545; color: white;">Thanh toán lỗi</span>
+                        {% endif %}
+                        <!-- KẾT THÚC -->
                         <span class="metadata">
                             <i class="fas fa-map-marker-alt"></i> {{ job.location }} |
                             Đăng ngày: {{ job.created_date.strftime('%d-%m-%Y') }}
