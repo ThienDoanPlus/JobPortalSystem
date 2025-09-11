@@ -83,7 +83,7 @@
     <div class="job-grid">
       {% for job in jobs %}
         <div class="job-card">
-          <h3><a href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.title }}</a></h3>
+          <h3><a href="{{ url_for('main.job_details', job_id=job.id) }}">{{ job.title }}</a></h3>
           <p class="company-name">{{ job.company.name }}</p>
           <p class="location"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
           <p class="salary">
@@ -154,3 +154,4 @@
   });
 </script>
 {% endblock %}
+

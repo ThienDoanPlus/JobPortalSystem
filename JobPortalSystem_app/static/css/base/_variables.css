@@ -1,6 +1,12 @@
 /* --- Định nghĩa bảng màu và font chữ toàn cục --- */
 :root {
     --primary-color: #2C7A7B;
+    --secondary-color: #4c51bf; /* Màu phụ */
+    --bg-light: #f7fafc; /* Màu nền nhẹ */
+    --editor-sidebar-width: 360px;
+    --editor-header-height: 70px;
+    --editor-panel-header-height: 65px;
+    --theme-color: #2c7a7b; /* Biến màu chủ đề mới */
     --primary-hover-color: #286A6B;
     --background-color: #F7FAFC;
     --card-bg-color: #FFFFFF;
