@@ -62,7 +62,9 @@ pipeline {
                 echo '🚚 Bat dau trien khai ung dung...'
                 bat 'docker stop job-portal-container || exit 0'
                 bat 'docker rm job-portal-container || exit 0'
-                bat 'docker run -d --name job-portal-container -p 5000:5000 nguyenkhoineee/job-portal-system' // <-- Thay đổi Docker Hub ID nếu cần
+                bat '''
+                        docker run -d --name job-portal-container -p 5000:5000 -e "DB_HOST=host.docker.internal" nguyenkhoineee/job-portal-system:latest
+                    '''
                 echo '🎉 Ung dung da duoc trien khai thanh cong va dang chay!'
             }
         }
