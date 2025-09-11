@@ -332,6 +332,22 @@ def create_application(job_id, candidate_id, resume_id=None, cv_file=None):
         current_app.logger.error(f"Lỗi không xác định khi tạo application: {e}")
         raise e
 
+def get_applications_by_cv(cv_id):
+    """
+    Lấy danh sách các đơn ứng tuyển đã sử dụng một CV cụ thể.
+    Tải sẵn (eager load) thông tin Job và Company để tối ưu hóa truy vấn.
+    """
+    return (
+        Application.query
+        .options(
+            # Dùng joinedload để JOIN các bảng trong cùng 1 câu lệnh SQL, tránh lỗi N+1
+            joinedload(Application.job).joinedload(JobPost.company)
+        )
+        .filter_by(resume_id=cv_id)
+        .order_by(Application.created_date.desc())
+        .all()
+    )
+
 """Tìm kiểm và lọc tin tuyển dụng"""
 def search_jobs(keyword=None, location=None, specialized=None, limit=None, search_type='all'):
     query = JobPost.query.filter_by(active=True)

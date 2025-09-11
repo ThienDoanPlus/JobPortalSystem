@@ -28,7 +28,7 @@ def create_momo_payment(amount, order_info):
             redirect_url = redirect_url.replace("http://127.0.0.1:2004", ngrok_url)
             ipn_url = ipn_url.replace("http://127.0.0.1:2004", ngrok_url)
         else:
-            print("⚠️ CẢNH BÁO: Không tìm thấy NGROK_URL. IPN của MoMo sẽ không hoạt động ở local.")
+            print("CẢNH BÁO: Không tìm thấy NGROK_URL. IPN của MoMo sẽ không hoạt động ở local.")
 
     amount_str = str(int(amount))
     order_id = str(uuid.uuid4())
