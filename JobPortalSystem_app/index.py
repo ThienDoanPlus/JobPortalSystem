@@ -81,6 +81,7 @@ def job_details(job_id):
 def about():
     return "<h1>Đây là trang giới thiệu</h1>"
 
+  
 @index_bp.route('/apply/<int:job_id>', methods=['POST'])
 @login_required
 def apply_job(job_id):

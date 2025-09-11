@@ -1,410 +1,733 @@
 // /static/js/cv_editor.js
+
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. KHỞI TẠO ---
-    const cvId = window.location.pathname.split('/')[2];
+    // ---------- Helpers ----------
+    const getCvIdFromPath = () => {
+        const m = window.location.pathname.match(/\/cv\/(\d+)/);
+        return m ? m[1] : null;
+    };
+
+    const cvId = getCvIdFromPath();
+    if (!cvId) {
+        console.error('Không xác định cvId từ URL');
+        return;
+    }
+
+    const editorContainer = document.querySelector('.cv-editor-container');
     const cvSheet = document.getElementById('cv-sheet');
-    const formContent = document.getElementById('form-content');
-    const panelTitle = document.getElementById('form-panel-title');
-    const navTabs = document.querySelectorAll('.nav-tab');
-    const sidebarPanels = document.querySelectorAll('.sidebar-panel');
+    const contentFormContainer = document.getElementById('content-form-container');
     const saveStatus = document.getElementById('save-status');
-    const designPanel = document.getElementById('design-panel');
-    const designButton = document.getElementById('btn-design');
     const downloadPdfButton = document.getElementById('btn-download-pdf');
+    const fontFamilySelect = document.getElementById('font-family-select');
+    const themeColorInput = document.getElementById('theme-color');
+    const saveCvButton = document.getElementById('btn-save-cv');
+    const sidebarNav = document.querySelector('.sidebar-main-nav'); // <<< THÊM MỚI
+    const sidebarPanels = document.querySelectorAll('.sidebar-panel'); // <<< THÊM MỚI
 
-    let cvData = {};
+
+    let cvData = { experiences: [], educations: [], skills: [] };
     let activeElement = null;
-    let activeSection = null; // Đã thêm khai báo
-    let debounceTimer;
-    let isDataLoaded = false;
+    let debounceTimer = null;
 
-    // --- 2. TEMPLATES ---
-    const formTemplates = {
-        default: '<h4>Chọn một mục trên CV để chỉnh sửa</h4><p>Hoặc thêm mục mới từ các nút bấm trên CV.</p>',
-        info: p => `<form data-type="info"><div class="form-group"><label>Họ và tên</label><input name="full_name" class="form-control" value="${p.full_name||''}"></div><div class="form-group"><label>Vị trí ứng tuyển</label><input name="title" class="form-control" value="${cvData.title||''}"></div><div class="form-group"><label>Email</label><input class="form-control" value="${p.email||''}" disabled></div><div class="form-group"><label>SĐT</label><input name="phone_number" class="form-control" value="${p.phone_number||''}"></div></form>`,
-        experience: item => `<h4>Chỉnh sửa Kinh nghiệm</h4><form data-type="experience" data-id="${item.id}"><div class="form-group"><label>Chức danh</label><input name="job_title" class="form-control" value="${item.job_title||''}"></div><div class="form-group"><label>Công ty</label><input name="company_name" class="form-control" value="${item.company_name||''}"></div><div class="form-group"><label>Mô tả</label><textarea name="description" class="form-control" rows="5">${item.description||''}</textarea></div></form>`,
-        education: item => `<h4>Chỉnh sửa Học vấn</h4><form data-type="education" data-id="${item.id}"><div class="form-group"><label>Trường</label><input name="institution_name" class="form-control" value="${item.institution_name||''}"></div><div class="form-group"><label>Bằng cấp</label><input name="degree" class="form-control" value="${item.degree||''}"></div><div class="form-group"><label>Chuyên ngành</label><input name="major" class="form-control" value="${item.major||''}"></div></form>`,
-        skills: () => `<div id="skills-list-form"><p>Nhập kỹ năng và nhấn Enter:</p><div class="form-group"><input type="text" id="new-skill-input" class="form-control" placeholder="Ví dụ: Python"></div><div class="skills-tag-container">${(cvData.skills||[]).map(s=>`<div class="skill-tag-item" data-id="${s.id}"><span class="skill-name" contenteditable="true">${s.skill_name}</span><button class="btn-delete-item" data-type="skill">&times;</button></div>`).join('')}</div></div>`,
-    };
+    function updateSaveStatus(text) {
+        if (!saveStatus) return;
+        saveStatus.className = 'status-indicator';
+        const lower = (text || '').toLowerCase();
+        if (lower.includes('đang') || lower.includes('saving')) saveStatus.classList.add('saving');
+        else if (lower.includes('lỗi') || lower.includes('error')) saveStatus.classList.add('error');
+        else saveStatus.classList.add('saved');
+        saveStatus.textContent = text;
+    }
 
-    // --- 3. CÁC HÀM XỬ LÝ ---
-    const handleReorder = e => {
-        const container = e.target;
-        const type = container.closest('.cv-section-preview').dataset.type;
-        const ids = Array.from(container.children).map(i => i.dataset.id);
-        const data = cvData[type + 's'];
-        if (data) {
-            data.sort((a, b) => ids.indexOf(String(a.id)) - ids.indexOf(String(b.id)));
-            data.forEach((item, idx) => item.order = idx);
-            saveOrder(type + 's', ids);
-        }
-    };
+    function escapeHtml(s) {
+        if (s == null) return '';
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
-    const handleNavClick = e => {
-        e.preventDefault();
-        const item = e.currentTarget;
-        navTabs.forEach(n => n.classList.remove('active'));
-        item.classList.add('active');
-        switchTab(item.dataset.panel);
-    };
+    function pluralSection(type) {
+        // type: experience|education|skill
+        if (type === 'experience') return 'experiences';
+        if (type === 'education') return 'educations';
+        return 'skills';
+    }
 
-    const handleLiveUpdate = e => {
-        const input = e.target;
-        const itemEl = input.closest('[data-id]');
-        const field = input.name;
+    function endpointForDelete(type, id) {
+        // type should be 'experience' | 'education' | 'skill'
+        return `/api/${type}/${id}`;
+    }
 
-        if (itemEl) {
-            const id = itemEl.dataset.id;
-            const type = input.closest('form').dataset.type;
-            const item = cvData[type + 's']?.find(i => i.id == id);
-            if (item) {
-                item[field] = input.value;
-                if (field === 'job_title' || field === 'institution_name') {
-                    itemEl.querySelector('h5').textContent = input.value;
-                }
-            }
+    function endpointForAdd(type) {
+        // type: 'experience' | 'education' | 'skills'
+        // backend expects POST /api/cv/<cv_id>/experience  OR .../education OR .../skill
+        const apiName = (type === 'skills') ? 'skill' : type;
+        return `/api/cv/${cvId}/${apiName}`;
+    }
+
+    function endpointForReorder(sectionPlural) {
+        // sectionPlural: experiences|educations|skills
+        return `/api/cv/${cvId}/${sectionPlural}/reorder`;
+    }
+
+    // ---------- Render ----------
+    function renderCV() {
+        const p = cvData.candidate_profile || { user: {} };
+        const title = cvData.title || '';
+
+        cvSheet.innerHTML = `
+            <header class="cv-section-preview cv-header-preview" data-type="info">
+                <h1 data-key="full_name" contenteditable="true">${escapeHtml(p.full_name || '')}</h1>
+                <p data-key="title" contenteditable="true">${escapeHtml(title)}</p>
+                <div class="contact-info">
+                    <span data-key="email"><i class="fas fa-envelope"></i> <span contenteditable="true" data-key="email">${escapeHtml(p.user?.email || '')}</span></span>
+                    <span data-key="phone_number"><i class="fas fa-phone"></i> <span contenteditable="true" data-key="phone_number">${escapeHtml(p.phone_number || '')}</span></span>
+                </div>
+            </header>
+
+            <section class="cv-section-preview" data-type="experience">
+                <h2 class="section-title-preview">KINH NGHIỆM</h2>
+                <div class="section-action-bar no-print"><button class="btn-add-section-item" title="Thêm kinh nghiệm"><i class="fas fa-plus"></i></button></div>
+                <div class="sortable-container"></div>
+            </section>
+
+            <section class="cv-section-preview" data-type="education">
+                <h2 class="section-title-preview">HỌC VẤN</h2>
+                <div class="section-action-bar no-print"><button class="btn-add-section-item" title="Thêm học vấn"><i class="fas fa-plus"></i></button></div>
+                <div class="sortable-container"></div>
+            </section>
+
+            <section class="cv-section-preview" data-type="skills">
+                <h2 class="section-title-preview">KỸ NĂNG</h2>
+                <div class="section-action-bar no-print"><button class="btn-add-section-item" title="Thêm kỹ năng"><i class="fas fa-plus"></i></button></div>
+                <div class="skills-container"></div>
+            </section>
+        `;
+
+        renderSectionItems('experience');
+        renderSectionItems('education');
+        renderSectionItems('skills');
+
+        initSortable(); // attach Sortable after DOM elements created
+    }
+
+    function renderSectionItems(type) {
+        // type: 'experience' | 'education' | 'skills'
+        let container;
+        if (type === 'skills') {
+            container = cvSheet.querySelector('[data-type="skills"] .skills-container');
+            container.innerHTML = (cvData.skills || []).sort((a,b) => (a.order||0)-(b.order||0)).map(s => `
+                <div class="skill-tag-item" data-id="${s.id}" data-type="skill">
+                    <span class="skill-name" data-key="skill_name" contenteditable="true">${escapeHtml(s.skill_name)}</span>
+                    <button class="btn-delete-item no-print" data-type="skill" title="Xóa">×</button>
+                </div>
+            `).join('');
         } else {
-            const form = input.closest('form');
-            if (form?.dataset.type === 'info') {
-                if (!cvData.candidate_profile) return;
-                if (field === 'title') {
-                    cvData.title = input.value;
+            container = cvSheet.querySelector(`[data-type="${type}"] .sortable-container`);
+            const arr = (type === 'experience') ? cvData.experiences : cvData.educations;
+            container.innerHTML = (arr || []).sort((a,b) => (a.order||0)-(b.order||0)).map(item => {
+                if (type === 'experience') {
+                    return `
+                    <div class="cv-item-preview" data-id="${item.id}" data-type="experience">
+                        <div class="item-action-bar no-print">
+                            <button class="handle-sort" title="Kéo thả"><i class="fas fa-grip-vertical"></i></button>
+                            <button class="btn-delete-item" data-type="experience" title="Xóa"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <h3 data-key="job_title" contenteditable="true">${escapeHtml(item.job_title)}</h3>
+                        <p class="company-name" data-key="company_name" contenteditable="true">${escapeHtml(item.company_name)}</p>
+                        <div class="item-description" data-key="description" contenteditable="true">${escapeHtml(item.description)}</div>
+                    </div>
+                    `;
                 } else {
-                    cvData.candidate_profile[field] = input.value;
+                    return `
+                    <div class="cv-item-preview" data-id="${item.id}" data-type="education">
+                        <div class="item-action-bar no-print">
+                            <button class="handle-sort" title="Kéo thả"><i class="fas fa-grip-vertical"></i></button>
+                            <button class="btn-delete-item" data-type="education" title="Xóa"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                        <h3 data-key="institution_name" contenteditable="true">${escapeHtml(item.institution_name)}</h3>
+                        <p class="degree-info"><span data-key="degree" contenteditable="true">${escapeHtml(item.degree)}</span> - <span data-key="major" contenteditable="true">${escapeHtml(item.major)}</span></p>
+                    </div>
+                    `;
                 }
-            }
+            }).join('');
         }
-        renderCV(); // Thay thế renderPreview bằng renderCV
-        autoSave();
-    };
+    }
+    // THÊM HÀM NÀY VÀO
+    function applyStyles() {
+        if (cvData.style) {
+            if (fontFamilySelect) fontFamilySelect.value = cvData.style.font_family;
+            if (themeColorInput) themeColorInput.value = cvData.style.theme_color;
 
-    const handleDynamicClick = async e => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-
-        if (btn.classList.contains('btn-add-item')) {
-            const type = btn.dataset.type;
-            const res = await fetch(`/api/cv/${cvId}/${type}`, {method: 'POST'});
-            if (res.ok) {
-                const newItem = await res.json();
-                cvData[type + 's'].push(newItem);
-                renderForm(type);
-                renderCV();
-            }
+            cvSheet.style.fontFamily = cvData.style.font_family;
+            document.documentElement.style.setProperty('--theme-color', cvData.style.theme_color);
         }
+        if (cvData.layout) {
+            cvSheet.className = 'cv-preview-sheet'; // Reset class về mặc định
+            cvSheet.classList.add(`layout-${cvData.layout}`);
 
-        if (btn.classList.contains('btn-delete-item')) {
-            const itemEl = btn.closest('[data-id]');
-            const id = itemEl.dataset.id;
-            const type = btn.dataset.type;
-            if (confirm('Bạn chắc chắn muốn xóa?')) {
-                itemEl.style.opacity = '0.5';
-                const res = await fetch(`/api/${type}/${id}`, {method: 'DELETE'});
-                if (res.ok) {
-                    cvData[type + 's'] = cvData[type + 's'].filter(i => i.id != id);
-                    renderForm(type);
-                    renderCV();
-                }
-            }
+            // Đánh dấu lựa chọn layout đang active
+            const layoutOptions = document.querySelectorAll('.layout-option');
+            layoutOptions.forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.layout === cvData.layout);
+            });
         }
-    };
+    }
 
-    const handleSkillEvents = async e => {
-        const target = e.target;
-        if (target.id === 'new-skill-input' && e.type === 'keydown' && e.key === 'Enter') {
-            e.preventDefault();
-            const name = target.value.trim();
-            if (name) {
-                const res = await fetch(`/api/cv/${cvId}/skill`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({skill_name: name})
+    // ---------- CRUD actions ----------
+
+    async function addItem(type) {
+        // type: 'experience'|'education'|'skills' (DOM uses 'skills' for skills section)
+        updateSaveStatus('Đang thêm...');
+        const url = endpointForAdd(type);
+        try {
+            const res = await fetch(url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({}) });
+            if (!res.ok) {
+                const err = await res.json().catch(()=>({error: 'Server error'}));
+                throw new Error(err.error || 'Tạo mục mới thất bại');
+            }
+            const newItem = await res.json();
+            const arrName = (type === 'skills') ? 'skills' : `${type}s`;
+            if (!cvData[arrName]) cvData[arrName] = [];
+            cvData[arrName].push(newItem);
+            renderSectionItems(type);
+            updateSaveStatus('Đã lưu!');
+        } catch (err) {
+            console.error('Add item error:', err);
+            updateSaveStatus('Lỗi!');
+            alert('Lỗi khi thêm mục: ' + err.message);
+        }
+    }
+
+    async function deleteItemById(id, type, elementToRemove) {
+        // type: 'experience'|'education'|'skill'
+        if (!confirm('Bạn chắc chắn muốn xóa mục này?')) return;
+        elementToRemove && (elementToRemove.style.opacity = '0.5');
+        const url = endpointForDelete(type, id);
+        try {
+            const res = await fetch(url, { method: 'DELETE' });
+            // Some backends return 204 No Content; still res.ok true
+            if (!res.ok) {
+                const err = await res.json().catch(()=>({error: 'Server error'}));
+                throw new Error(err.error || `Xóa ${type} thất bại`);
+            }
+            // Remove from local cvData
+            const arrName = (type === 'skill') ? 'skills' : `${type}s`;
+            if (cvData[arrName]) {
+                cvData[arrName] = cvData[arrName].filter(it => String(it.id) !== String(id));
+            }
+            // Remove DOM element (if provided) or rerender section
+            if (elementToRemove) elementToRemove.remove();
+            else renderSectionItems(type === 'skill' ? 'skills' : type);
+            updateSaveStatus('Đã xóa!');
+        } catch (err) {
+            console.error('Delete error:', err);
+            elementToRemove && (elementToRemove.style.opacity = '1');
+            updateSaveStatus('Lỗi!');
+            alert('Lỗi khi xóa: ' + err.message);
+        }
+    }
+
+    async function updateItemInline(type, id, field, value) {
+        // type: 'experience'|'education'|'skill'|'info'
+        if (type === 'info') {
+            // info changes -> autosave full cv api
+            const payload = {};
+            // If editing title (cvData.title) we send { title }, else send candidate_profile
+            if (field === 'title') {
+                payload.title = value;
+            } else {
+                // candidate_profile field
+                const cp = cvData.candidate_profile || {};
+                cp[field] = value;
+                payload.candidate_profile = cp;
+            }
+            try {
+                updateSaveStatus('Đang lưu...');
+                const res = await fetch(`/api/cv/${cvId}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(payload)
                 });
-                if (res.ok) {
-                    const newSkill = await res.json();
-                    cvData.skills.push(newSkill);
-                    renderForm('skills');
-                    renderCV();
+                if (!res.ok) {
+                    const err = await res.json().catch(()=>({error:'Server error'}));
+                    throw new Error(err.error || 'Lưu thất bại');
                 }
+                updateSaveStatus('Đã lưu!');
+            } catch (err) {
+                console.error('Update info error:', err);
+                updateSaveStatus('Lỗi!');
             }
+            return;
         }
 
-        if (target.classList.contains('skill-name') && e.type === 'blur') {
-            const itemEl = target.closest('[data-id]');
-            const id = itemEl.dataset.id;
-            const newName = target.textContent.trim();
-            const skill = cvData.skills.find(s => s.id == id);
-            if (skill && skill.skill_name !== newName) {
-                skill.skill_name = newName;
-                renderCV();
-                autoSave();
+        const endpoint = (type === 'skill') ? `/api/skill/${id}` : `/api/${type}/${id}`;
+        const body = (type === 'skill') ? { skill_name: value } : { [field]: value };
+        // Debounce to avoid flooding server on each key, but for contenteditable we use blur -> immediate
+        try {
+            updateSaveStatus('Đang lưu...');
+            const res = await fetch(endpoint, {
+                method: 'PUT',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(()=>({error:'Server error'}));
+                throw new Error(err.error || 'Lưu thất bại');
             }
+            // Reflect change in cvData
+            if (type === 'skill') {
+                const s = (cvData.skills || []).find(x => String(x.id) === String(id));
+                if (s) s.skill_name = value;
+            } else {
+                const arrName = `${type}s`;
+                const it = (cvData[arrName] || []).find(x => String(x.id) === String(id));
+                if (it) it[field] = value;
+            }
+            updateSaveStatus('Đã lưu!');
+        } catch (err) {
+            console.error('Update item error:', err);
+            updateSaveStatus('Lỗi!');
+            alert('Lỗi lưu: ' + err.message);
         }
-    };
+    }
 
-    const handleDesignPanel = () => {
-        designPanel.classList.toggle('active');
-    };
+    // ---------- Sortable (drag & drop) ----------
+    function initSortable() {
+        // init for sortable-container (experience/education items)
+        document.querySelectorAll('.sortable-container').forEach(container => {
+            if (container._sortableInitialized) return;
+            container._sortableInitialized = true;
+            new Sortable(container, {
+                handle: '.handle-sort',
+                animation: 150,
+                onEnd: function (evt) {
+                    const sectionEl = container.closest('[data-type]');
+                    const sectionType = sectionEl ? sectionEl.dataset.type : null; // 'experience' or 'education'
+                    const sectionPluralName = pluralSection(sectionType);
+                    const ids = Array.from(container.children).map(ch => ch.dataset.id);
+                    // update local order
+                    const arrName = (sectionType === 'experience') ? 'experiences' : 'educations';
+                    if (cvData[arrName]) {
+                        cvData[arrName].forEach(item => {
+                            item.order = ids.indexOf(String(item.id));
+                        });
+                    }
+                    // call API
+                    saveOrder(sectionPluralName, ids);
+                }
+            });
+        });
 
-    const handleStyleChange = () => {
-        cvData.style = cvData.style || {};
-        cvData.style.font_family = document.getElementById('font-family-select').value;
-        cvData.style.theme_color = document.getElementById('theme-color').value;
-        renderCV();
-        autoSave(null, 'style');
-    };
+        // init for skills-container
+        document.querySelectorAll('.skills-container').forEach(container => {
+            if (container._sortableInitialized) return;
+            container._sortableInitialized = true;
+            new Sortable(container, {
+                animation: 150,
+                onEnd: function () {
+                    const ids = Array.from(container.children).map(ch => ch.dataset.id);
+                    if (cvData.skills) cvData.skills.forEach(s => s.order = ids.indexOf(String(s.id)));
+                    saveOrder('skills', ids);
+                }
+            });
+        });
+    }
 
-    const handleDownloadPdf = () => {
+    async function saveOrder(sectionPluralName, ids) {
+        updateSaveStatus('Đang lưu thứ tự...');
+        try {
+            const res = await fetch(endpointForReorder(sectionPluralName), {
+                method: 'PUT',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ ids })
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(()=>({error:'Server error'}));
+                throw new Error(err.error || 'Lưu thứ tự thất bại');
+            }
+            updateSaveStatus('Đã lưu!');
+        } catch (err) {
+            console.error('Save order error:', err);
+            updateSaveStatus('Lỗi!');
+            alert('Lỗi khi lưu thứ tự: ' + err.message);
+        }
+    }
+
+    // ---------- Event delegation ----------
+    editorContainer.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.btn-delete-item');
+        if (delBtn) {
+            // prefer dataset.type on button, otherwise use parent element's data-type
+            const type = delBtn.dataset.type || delBtn.closest('[data-type]')?.dataset.type || delBtn.closest('[data-id]')?.dataset.type;
+            const itemEl = delBtn.closest('[data-id]');
+            const id = itemEl ? itemEl.dataset.id : null;
+            if (!id || !type) {
+                console.error('Không xác định id/type khi xóa', { id, type });
+                return;
+            }
+            // normalize 'skills' => 'skill'
+            const apiType = (type === 'skills') ? 'skill' : type;
+            deleteItemById(id, apiType, itemEl);
+            return;
+        }
+
+        const addBtn = e.target.closest('.btn-add-section-item');
+        if (addBtn) {
+            const section = addBtn.closest('[data-type]');
+            const type = section ? section.dataset.type : null; // 'experience'|'education'|'skills'
+            if (!type) return;
+            addItem(type);
+            return;
+        }
+
+        // clicking on preview item => mark active and show sidebar form
+        const editable = e.target.closest('.cv-item-preview, .skill-tag-item, .cv-header-preview');
+        if (editable) {
+            if (activeElement && activeElement !== editable) activeElement.classList.remove('active');
+            activeElement = editable;
+            activeElement.classList.add('active');
+            renderContentFormForActive();
+            // ensure content panel visible
+            document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('content-panel')?.classList.add('active');
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.panel === 'content-panel'));
+            return;
+        }
+    });
+
+    // input/blur handlers for contenteditable & sidebar inputs
+    editorContainer.addEventListener('blur', (e) => {
+        const ce = e.target.closest('[contenteditable="true"]');
+        if (!ce) return;
+        // determine which parent item contains this contenteditable
+        const parent = ce.closest('[data-id], .cv-header-preview');
+        if (!parent) return;
+        const type = parent.dataset.type || (parent.classList.contains('cv-header-preview') ? 'info' : null);
+        const id = parent.dataset.id;
+        const field = ce.dataset.key;
+        const value = ce.textContent.trim();
+        if (!field) return;
+        updateItemInline(type, id, field, value);
+    }, true);
+
+    // also watch input events inside sidebar forms (for quick auto-save)
+    editorContainer.addEventListener('input', (e) => {
+        const inputEl = e.target;
+        const form = inputEl.closest('form[data-type]');
+        if (!form) return;
+        const type = form.dataset.type; // info | experience | education
+        const id = form.dataset.id;
+        const field = inputEl.name;
+        const value = inputEl.value;
+        // small debounce per field
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            if (type === 'info') {
+                // update local
+                if (!cvData.candidate_profile) cvData.candidate_profile = {};
+                if (field === 'title') cvData.title = value; else cvData.candidate_profile[field] = value;
+                updateItemInline('info', null, field, value);
+            } else {
+                // update specific item
+                const arrName = `${type}s`;
+                const item = (cvData[arrName] || []).find(it => String(it.id) === String(id));
+                if (item) item[field] = value;
+                updateItemInline(type, id, field, value);
+            }
+        }, 600);
+    });
+
+    // new-skill-input Enter handled at capture keydown to prevent form submit
+    editorContainer.addEventListener('keydown', (e) => {
+        const el = e.target;
+        if (el && el.id === 'new-skill-input' && e.key === 'Enter') {
+            e.preventDefault();
+            // reuse add skill endpoint to create new with name
+            const name = el.value.trim();
+            if (!name) return;
+            (async () => {
+                try {
+                    const res = await fetch(`/api/cv/${cvId}/skill`, {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({ skill_name: name })
+                    });
+                    if (!res.ok) {
+                        const err = await res.json().catch(()=>({error:'Server error'}));
+                        throw new Error(err.error || 'Không thể thêm kỹ năng');
+                    }
+                    const newSkill = await res.json();
+                    cvData.skills = cvData.skills || [];
+                    cvData.skills.push(newSkill);
+                    renderSectionItems('skills');
+                    renderContentFormForActive();
+                    el.value = '';
+                    updateSaveStatus('Đã lưu!');
+                } catch (err) {
+                    console.error('Add skill error:', err);
+                    alert('Lỗi thêm skill: ' + err.message);
+                    updateSaveStatus('Lỗi!');
+                }
+            })();
+        }
+    });
+
+    // ---------- Sidebar content rendering ----------
+    function renderContentFormForActive() {
+        if (!activeElement) {
+            contentFormContainer.innerHTML = '<p class="panel-guide">Chọn một mục trên CV để chỉnh sửa.</p>';
+            return;
+        }
+        const type = activeElement.dataset.type || (activeElement.classList.contains('cv-header-preview') ? 'info' : null);
+        const id = activeElement.dataset.id;
+        if (type === 'info') {
+            const p = cvData.candidate_profile || { user: {} };
+            contentFormContainer.innerHTML = `
+                <h4>Thông tin cá nhân</h4>
+                <form data-type="info">
+                    <div class="form-group"><label>Họ & tên</label><input name="full_name" class="form-control" value="${escapeHtml(p.full_name||'')}"/></div>
+                    <div class="form-group"><label>Vị trí</label><input name="title" class="form-control" value="${escapeHtml(cvData.title||'')}"/></div>
+                    <div class="form-group"><label>Email</label><input name="email" class="form-control" value="${escapeHtml(p.user?.email||'')}"/></div>
+                    <div class="form-group"><label>SĐT</label><input name="phone_number" maxlength="15" pattern="[0-9+\\- ]*" class="form-control" name="phone_number" value="${escapeHtml(p.phone_number||'')}"/></div>
+                </form>
+            `;
+            return;
+        }
+
+        if (type === 'skill') {
+            // show skills editor (input + tags)
+            contentFormContainer.innerHTML = `
+                <div id="skills-list-form">
+                    <h4>Chỉnh sửa Kỹ năng</h4>
+                    <p>Nhập kỹ năng và nhấn Enter:</p>
+                    <div class="form-group"><input type="text" id="new-skill-input" class="form-control" placeholder="Ví dụ: Python"></div>
+                    <div class="skills-tag-container">
+                        ${(cvData.skills || []).map(s => `<div class="skill-tag-item" data-id="${s.id}"><span class="skill-name" data-key="skill_name" contenteditable="true">${escapeHtml(s.skill_name)}</span><button class="btn-delete-item no-print" data-type="skill" title="Xóa">×</button></div>`).join('')}
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        if (type === 'experience' || type === 'education') {
+            const arrName = (type === 'experience') ? 'experiences' : 'educations';
+            const item = (cvData[arrName] || []).find(i => String(i.id) === String(id)) || {};
+            if (type === 'experience') {
+                contentFormContainer.innerHTML = `
+                    <h4>Chỉnh sửa Kinh nghiệm</h4>
+                    <form data-type="experience" data-id="${item.id}">
+                        <div class="form-group"><label>Chức danh</label><input name="job_title" class="form-control" value="${escapeHtml(item.job_title||'')}"></div>
+                        <div class="form-group"><label>Công ty</label><input name="company_name" class="form-control" value="${escapeHtml(item.company_name||'')}"></div>
+                        <div class="form-group"><label>Mô tả</label><textarea name="description" class="form-control" rows="4">${escapeHtml(item.description||'')}</textarea></div>
+                    </form>
+                `;
+            } else {
+                contentFormContainer.innerHTML = `
+                    <h4>Chỉnh sửa Học vấn</h4>
+                    <form data-type="education" data-id="${item.id}">
+                        <div class="form-group"><label>Trường</label><input name="institution_name" class="form-control" value="${escapeHtml(item.institution_name||'')}"></div>
+                        <div class="form-group"><label>Bằng cấp</label><input name="degree" class="form-control" value="${escapeHtml(item.degree||'')}"></div>
+                        <div class="form-group"><label>Chuyên ngành</label><input name="major" class="form-control" value="${escapeHtml(item.major||'')}"></div>
+                    </form>
+                `;
+            }
+            return;
+        }
+
+        contentFormContainer.innerHTML = '<p class="panel-guide">Chọn một mục trên CV để chỉnh sửa.</p>';
+    }
+
+    // ---------- PDF / Style / Layout handlers ----------
+    function handleDownloadPdf() {
         if (!cvSheet) return;
 
-        const element = cvSheet;
-        const originalScale = element.style.transform;
-        element.style.transform = 'scale(1)';
+        // Tạm thời ẩn các phần tử không cần in
+        const noPrintElements = document.querySelectorAll('.no-print');
+        noPrintElements.forEach(el => el.style.display = 'none');
+
+        // Tạo filename từ tên ứng viên
+        const filename = `${cvData.candidate_profile?.full_name || 'CV'}_${new Date().toISOString().slice(0,10)}.pdf`;
 
         const opt = {
             margin: 0,
-            filename: `${cvData.candidate_profile?.full_name || 'CV'}_CV.pdf`,
-            image: {type: 'jpeg', quality: 0.98},
-            html2canvas: {scale: 2, useCORS: true},
-            jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'}
+            filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                allowTaint: true
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait',
+                hotfixes: ["px_scaling"] // Fix lỗi kích thước trên một số trình duyệt
+            },
+            pagebreak: {
+                mode: ['avoid-all', 'css'] // Ưu tiên không ngắt trang
+            }
         };
 
-        html2pdf().from(element).set(opt).save().then(() => {
-            element.style.transform = originalScale;
-        });
-    };
+        // Thêm lớp tạm thời để tối ưu in ấn
+        cvSheet.classList.add('printing');
 
-    // --- 4. CÁC HÀM RENDER ---
-    function renderCV() {
-        const { candidate_profile: p = {}, title, experiences = [], educations = [], skills = [] } = cvData;
-
-        cvSheet.innerHTML = `
-        <header class="cv-section-preview" data-type="info">
-            <h1 data-key="candidate_profile.full_name" contenteditable="true">${p.full_name || ''}</h1>
-            <p data-key="title" contenteditable="true">${title || ''}</p>
-            <div class="contact-info">
-                <span><i class="fas fa-envelope"></i> ${p.email || ''}</span>
-                <span><i class="fas fa-phone"></i> ${p.phone_number || ''}</span>
-            </div>
-        </header>
-        <section class="cv-section-preview" data-type="experience">
-            <h2 class="section-title-preview">KINH NGHIỆM</h2>
-            <div class="section-action-bar"><button class="btn-add-section-item" title="Thêm kinh nghiệm"><i class="fas fa-plus"></i></button></div>
-            <div class="sortable-container">${experiences.map(e => `
-                <div class="cv-item-preview" data-id="${e.id}" data-type="experience">
-                    <div class="item-action-bar">
-                        <button class="handle-sort"><i class="fas fa-grip-vertical"></i></button>
-                        <button class="btn-delete-item"><i class="fas fa-trash-alt"></i></button>
-                    </div>
-                    <h3 data-key="job_title" contenteditable="true">${e.job_title || ''}</h3>
-                    <p class="company-name">${e.company_name || ''}</p>
-                    <div class="item-description" data-key="description" contenteditable="true">${e.description || ''}</div>
-                </div>`).join('')}
-            </div>
-        </section>
-        <section class="cv-section-preview" data-type="education">
-            <h2 class="section-title-preview">HỌC VẤN</h2>
-            <div class="section-action-bar"><button class="btn-add-section-item" title="Thêm học vấn"><i class="fas fa-plus"></i></button></div>
-            <div class="sortable-container">${educations.map(e => `
-                <div class="cv-item-preview" data-id="${e.id}" data-type="education">
-                    <div class="item-action-bar">
-                        <button class="handle-sort"><i class="fas fa-grip-vertical"></i></button>
-                        <button class="btn-delete-item"><i class="fas fa-trash-alt"></i></button>
-                    </div>
-                    <h3 data-key="institution_name" contenteditable="true">${e.institution_name || ''}</h3>
-                    <p class="degree-info">${e.degree || ''} - ${e.major || ''}</p>
-                </div>`).join('')}
-            </div>
-        </section>
-        <section class="cv-section-preview" data-type="skills">
-            <h2 class="section-title-preview">KỸ NĂNG</h2>
-            <div class="section-action-bar"><button class="btn-add-section-item" title="Thêm kỹ năng"><i class="fas fa-plus"></i></button></div>
-            <div class="skills-container">
-                ${skills.map(s => `<span class="skill-tag" data-id="${s.id}">${s.skill_name || ''}</span>`).join('')}
-            </div>
-        </section>`;
-
-        initSortable();
-    }
-
-    function renderContentForm() {
-        if (!activeSection) {
-            contentFormContainer.innerHTML = formTemplates.default;
-            return;
-        }
-
-        const type = activeSection.dataset.type;
-        const id = activeSection.dataset.id;
-        let itemData = {};
-
-        if (type === 'info') {
-            itemData = cvData.candidate_profile || {};
-            itemData.title = cvData.title || '';
-        } else {
-            const items = cvData[type + 's'] || [];
-            itemData = items.find(i => i.id == id) || {};
-        }
-
-        if (formTemplates[type]) {
-            contentFormContainer.innerHTML = formTemplates[type](itemData);
-        }
-    }
-
-    function renderForm(type) {
-        if (activeSection && activeSection.dataset.type === type) {
-            renderContentForm();
-        }
-    }
-
-    // --- 5. HÀM XỬ LÝ SỰ KIỆN ---
-    const initSortable = () => {
-        document.querySelectorAll('.sortable-container').forEach(el => {
-            new Sortable(el, {
-                handle: '.handle-sort',
-                animation: 150,
-                onEnd: handleReorder
+        html2pdf()
+            .set(opt)
+            .from(cvSheet)
+            .toPdf()
+            .get('pdf')
+            .then((pdf) => {
+                // Tùy chỉnh thêm cho PDF (nếu cần)
+                const totalPages = pdf.internal.getNumberOfPages();
+                for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(150);
+                    pdf.text(
+                        `Trang ${i} của ${totalPages}`,
+                        pdf.internal.pageSize.getWidth() - 20,
+                        pdf.internal.pageSize.getHeight() - 10
+                    );
+                }
+            })
+            .save()
+            .then(() => {
+                // Khôi phục trạng thái ban đầu
+                cvSheet.classList.remove('printing');
+                noPrintElements.forEach(el => el.style.display = '');
+            })
+            .catch(err => {
+                console.error('PDF generation error:', err);
+                alert('Lỗi khi tạo PDF: ' + err.message);
             });
-        });
-    };
-
-    const switchTab = panelId => {
-        sidebarPanels.forEach(p => p.classList.remove('active'));
-        document.getElementById(panelId)?.classList.add('active');
-        navTabs.forEach(t => t.classList.toggle('active', t.dataset.panel === panelId));
-    };
-
-    function handleCVInteraction(e) {
-        const target = e.target;
-
-        // Xử lý click vào một mục để hiện form
-        const item = target.closest('.cv-item-preview, .cv-header-preview');
-        if (item) {
-            if (activeElement) activeElement.classList.remove('active');
-            activeElement = item;
-            activeElement.classList.add('active');
-            activeSection = item;
-            switchTab('content-panel');
-            renderContentForm();
-        }
-
-        // Xử lý nút Thêm
-        const addBtn = target.closest('.btn-add-section-item');
-        if (addBtn) {
-            const type = addBtn.closest('.cv-section-preview').dataset.type;
-            fetch(`/api/cv/${cvId}/${type}`, {method: 'POST'})
-                .then(r => r.json())
-                .then(newItem => {
-                    cvData[type + 's'] = cvData[type + 's'] || [];
-                    cvData[type + 's'].push(newItem);
-                    renderCV();
-                });
-        }
-    };
-
-    // --- 6. LƯU TRỮ & KHỞI ĐỘNG ---
-    const updateSaveStatus = text => {
-        saveStatus.className = text.includes('Đang') ? 'saving' : 'saved';
-        saveStatus.textContent = text;
-    };
-
-    const autoSave = () => {
-        clearTimeout(debounceTimer);
-        updateSaveStatus('Đang thay đổi...');
-        debounceTimer = setTimeout(async () => {
-            updateSaveStatus('Đang lưu...');
-            await fetch(`/api/cv/${cvId}`, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(cvData)
-            });
-            updateSaveStatus('Đã lưu!');
-        }, 2000);
-    };
-
-    const saveOrder = async (type, ids) => {
-        updateSaveStatus('Đang lưu thứ tự...');
-        await fetch(`/api/cv/${cvId}/${type}/reorder`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ids: ids})
-        });
-        updateSaveStatus('Đã lưu!');
-    };
-
-    function initEventListeners() {
-        navTabs.forEach(item => item.addEventListener('click', handleNavClick));
-        contentFormContainer.addEventListener('input', handleLiveUpdate);
-        contentFormContainer.addEventListener('click', handleDynamicClick);
-        contentFormContainer.addEventListener('keydown', handleSkillEvents);
-        contentFormContainer.addEventListener('blur', handleSkillEvents, true);
-        designButton.addEventListener('click', handleDesignPanel);
-        designPanel.addEventListener('change', handleStyleChange);
-        designPanel.addEventListener('input', handleStyleChange);
-        downloadPdfButton.addEventListener('click', handleDownloadPdf);
-        cvSheet.addEventListener('click', handleCVInteraction);
-        cvSheet.addEventListener('input', handleLiveUpdate);
     }
 
-    async function init() {
-            // --- BẮT ĐẦU DEBUG CHI TIẾT ---
-        console.log("Initializing CV Editor...");
+    if (downloadPdfButton) downloadPdfButton.addEventListener('click', handleDownloadPdf);
+    if (fontFamilySelect) fontFamilySelect.addEventListener('change', () => {
+        cvData.style = cvData.style || {};
+        cvData.style.font_family = fontFamilySelect.value;
+        fetch(`/api/cv/${cvId}/style`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ font_family: fontFamilySelect.value, theme_color: cvData.style.theme_color || '' })});
+    });
+    if (themeColorInput) themeColorInput.addEventListener('input', () => {
+        cvData.style = cvData.style || {};
+        cvData.style.theme_color = themeColorInput.value;
+        fetch(`/api/cv/${cvId}/style`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ font_family: cvData.style.font_family || '', theme_color: themeColorInput.value })});
+    });
 
-        const elements = {
-            cvSheet: document.getElementById('cv-sheet'),
-            contentFormContainer: document.getElementById('form-content'), // <-- Sửa lại cho đúng
-            saveStatus: document.getElementById('save-status'),
-            panelTitle: document.getElementById('form-panel-title'),
-            designPanel: document.getElementById('design-panel'),
-            designButton: document.getElementById('btn-design'),
-            downloadPdfButton: document.getElementById('btn-download-pdf')
-        };
 
-        let missingElement = null;
-        for (const key in elements) {
-            if (!elements[key]) {
-                missingElement = key;
-                break;
-            }
-        }
-
-        if (missingElement) {
-            const errorMessage = `Lỗi khởi tạo: Không tìm thấy phần tử DOM quan trọng với ID: '${missingElement}'. Hãy kiểm tra lại file cv_edit.html.`;
-            console.error(errorMessage);
-            if (elements.cvSheet) {
-                elements.cvSheet.innerHTML = `<p class="text-danger">${errorMessage}</p>`;
-            }
-            return; // Dừng thực thi
-        }
-
-        console.log("All essential DOM elements found.");
-        // --- KẾT THÚC DEBUG CHI TIẾT ---
-
-        if (!cvId) {
-            elements.cvSheet.innerHTML = '<p class="text-danger">Lỗi: Không tìm thấy ID của CV.</p>';
-            return;
-        }
+    async function loadCvData() {
+        updateSaveStatus('Đang tải dữ liệu...');
         try {
             const res = await fetch(`/api/cv/${cvId}`);
-            if (!res.ok) throw new Error('Tải CV thất bại');
-            cvData = await res.json();
-            isDataLoaded = true;
-            if(cvData.experiences) cvData.experiences.sort((a,b)=>a.order-b.order);
-            if(cvData.educations) cvData.educations.sort((a,b)=>a.order-b.order);
-
-            renderCV();
-            renderContentForm('info');
-            initEventListeners();
-
-            // Cập nhật giá trị ban đầu cho panel thiết kế
-            if (cvData.style) {
-                document.getElementById('font-family-select').value = cvData.style.font_family;
-                document.getElementById('theme-color').value = cvData.style.theme_color;
+            if (!res.ok) {
+                const err = await res.json().catch(()=>({error:'Server error'}));
+                throw new Error(err.error || 'Tải CV thất bại');
             }
-        } catch (error) {
-            console.error('Lỗi trong quá trình init:', error);
-            if(elements.cvSheet) elements.cvSheet.innerHTML = `<p class="text-danger">${error.message}</p>`;
+            cvData = await res.json();
+            // ensure arrays exist
+            cvData.experiences = cvData.experiences || [];
+            cvData.educations = cvData.educations || [];
+            cvData.skills = cvData.skills || [];
+            renderCV();
+            applyStyles(); // Áp dụng style và layout ban đầu
+
+            updateSaveStatus('Đã tải');
+        } catch (err) {
+            console.error('Load CV error:', err);
+            cvSheet.innerHTML = `<p class="text-danger">Lỗi: ${escapeHtml(err.message)}</p>`;
+            updateSaveStatus('Lỗi tải dữ liệu');
         }
     }
+    // ---- Logic xử lý Style ----
+    function handleStyleChange() {
+        if (!cvData.style) cvData.style = {};
+        // 1. Cập nhật dữ liệu local từ các ô input
+        cvData.style.font_family = fontFamilySelect.value;
+        cvData.style.theme_color = themeColorInput.value;
 
+        // 2. Cập nhật giao diện ngay lập tức
+        applyStyles();
+
+        // 3. Gọi API để lưu (có debounce để tránh gọi liên tục)
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            updateSaveStatus('Đang lưu...');
+            fetch(`/api/cv/${cvId}/style`, {
+                method: 'PUT',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(cvData.style)
+            }).then(res => {
+                if (res.ok) updateSaveStatus('Đã lưu!');
+                else updateSaveStatus('Lỗi!');
+            });
+        }, 600);
+    }
+
+    function handleLayoutChange(newLayout) {
+        // 1. Cập nhật dữ liệu local
+        cvData.layout = newLayout;
+        // 2. Cập nhật giao diện
+        applyStyles();
+        // 3. Gọi API để lưu
+        updateSaveStatus('Đang lưu...');
+        fetch(`/api/cv/${cvId}/layout`, {
+            method: 'PUT',
+            headers: {'Content-Type':'application/json'},
+            // Gửi cả style và layout để gộp chung API
+            handleLayoutChange
+        }).then(res => {
+            if (res.ok) updateSaveStatus('Đã lưu!');
+            else updateSaveStatus('Lỗi!');
+        });
+    }
+    function init() {
+        if (sidebarNav) {
+            sidebarNav.addEventListener('click', (e) => {
+                const tab = e.target.closest('.nav-tab');
+                if (!tab) return;
+
+                // Lấy tên panel từ data attribute
+                const panelName = tab.dataset.panel;
+                if (!panelName) return;
+
+                // Xóa active class khỏi tất cả các tab
+                sidebarNav.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                // Thêm active class cho tab được click
+                tab.classList.add('active');
+
+                // Xóa active class khỏi tất cả các panel
+                sidebarPanels.forEach(p => p.classList.remove('active'));
+                // Thêm active class cho panel tương ứng
+                const panelToShow = document.getElementById(panelName);
+                if (panelToShow) {
+                    panelToShow.classList.add('active');
+                }
+            });
+        }
+        if (downloadPdfButton) {
+            downloadPdfButton.addEventListener('click', handleDownloadPdf);
+        }
+        if (fontFamilySelect) {
+            fontFamilySelect.addEventListener('change', handleStyleChange);
+        }
+        if (themeColorInput) {
+            themeColorInput.addEventListener('input', handleStyleChange);
+        }
+        document.querySelectorAll('.layout-option').forEach(option => {
+            option.addEventListener('click', () => {
+                handleLayoutChange(option.dataset.layout);
+            });
+        });
+
+        // Tải dữ liệu CV
+        loadCvData();
+    }
     init();
+    // Start
+    loadCvData();
 });
