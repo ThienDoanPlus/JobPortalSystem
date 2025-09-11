@@ -81,21 +81,7 @@ def job_details(job_id):
 def about():
     return "<h1>Đây là trang giới thiệu</h1>"
 
-# file: index.py
-
-# @index_bp.route('/apply/<int:job_id>', methods=['POST'])
-# @login_required
-# def apply_job(job_id):
-#     if current_user.role != RoleEnum.CANDIDATE:
-#         return jsonify({'error': 'Chỉ có ứng viên mới có thể ứng tuyển.'}), 403
-#
-#     if not current_user.candidate_profile:
-#          return jsonify({'error': 'Không tìm thấy hồ sơ ứng viên của bạn.'}), 400
-#
-#     resume_id = request.form.get('resume_id')
-#     cv_file   = request.files.get('cv_file')
-# # file: index.py
-
+  
 @index_bp.route('/apply/<int:job_id>', methods=['POST'])
 @login_required
 def apply_job(job_id):

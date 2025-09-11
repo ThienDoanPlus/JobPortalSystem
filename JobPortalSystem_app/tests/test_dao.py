@@ -84,5 +84,11 @@ class DAOTestCase(unittest.TestCase):
         is_correct = dao.check_password(None, self.test_password_plain)
         self.assertFalse(is_correct)
 
+        def test_get_user_by_email_success(self):
+            """Kiểm thử lấy user thành công bằng email."""
+            user = dao.get_user_by_email(self.test_email)
+            self.assertIsNotNone(user)
+            self.assertEqual(user.email, self.test_email)
+
 if __name__ == '__main__':
     unittest.main()
