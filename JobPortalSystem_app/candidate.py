@@ -17,6 +17,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+
 @candidate_bp.route('/profile')
 @login_required
 def profile():
@@ -115,51 +116,19 @@ def manage_cvs():
                 cv_status_map[cv.id] = "Chưa ứng tuyển"
     return render_template('cv_manage.html', cv_list=cv_list, cv_status_map=cv_status_map)
 
-@candidate_bp.route('/cv/<int:cv_id>/edit', methods=['GET', 'POST'])
+@candidate_bp.route('/cv/<int:cv_id>/edit', methods=['GET']) # Chỉ chấp nhận method GET
 @login_required
 def edit_cv(cv_id):
     # Lấy CV từ CSDL
     cv = dao.get_cv_by_id(cv_id)
 
-    # Đảm bảo user không thể chỉnh sửa CV của người khác bằng cách thay đổi ID trên URL
+    # Đảm bảo user không thể chỉnh sửa CV của người khác
     if not cv or cv.candidate.user_id != current_user.id:
         flash('CV không tồn tại hoặc bạn không có quyền chỉnh sửa.', 'danger')
         return redirect(url_for('candidate.manage_cvs'))
 
-    # XỬ LÝ KHI NGƯỜI DÙNG SUBMIT FORM THÊM KINH NGHIỆM
-    if request.method == 'POST':
-        # Lấy giá trị của nút submit được nhấn
-        action = request.form.get('action')
-
-        if action == 'add_experience':
-            job_title = request.form.get('job_title')
-            company_name = request.form.get('company_name')
-            description = request.form.get('description')
-            if not job_title or not company_name:
-                flash('Chức danh và Tên công ty là bắt buộc.', 'danger')
-            else:
-                dao.add_experience_to_cv(cv_id=cv.id, job_title=job_title,
-                                         company_name=company_name, description=description)
-                flash('Thêm kinh nghiệm thành công!', 'success')
-            return redirect(url_for('candidate.edit_cv', cv_id=cv.id))
-
-        elif action == 'add_education':
-            institution_name = request.form.get('institution_name')
-            degree = request.form.get('degree')
-            major = request.form.get('major')
-            if not institution_name or not degree:
-                flash('Tên trường và Bằng cấp là bắt buộc.', 'danger')
-            else:
-                dao.add_education_to_cv(cv_id=cv.id, institution_name=institution_name,
-                                        degree=degree, major=major)
-                flash('Thêm học vấn thành công!', 'success')
-            return redirect(url_for('candidate.edit_cv', cv_id=cv.id))
-
-        # Lấy danh sách để hiển thị
-    experiences = cv.experiences
-    educations = cv.educations  # <-- LẤY THÊM DANH SÁCH HỌC VẤN
-
-    return render_template('cv_edit.html', cv=cv, experiences=experiences, educations=educations)
+    # Chỉ cần render template, mọi logic khác sẽ do JavaScript và API xử lý
+    return render_template('cv_edit.html', cv=cv)
 
 
 @candidate_bp.route('/cv/<int:cv_id>/applications')

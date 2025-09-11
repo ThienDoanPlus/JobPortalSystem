@@ -88,17 +88,17 @@
             </section>
 
             <!-- PHẦN KỸ NĂNG -->
-            <section class="cv-section-preview">
+            <section class="cv-section-preview" data-type="skills">
                 <h2 class="section-title-preview">KỸ NĂNG</h2>
-                {% if cv.skills %}
-                    <div class="skills-list">
-                    {% for skill in cv.skills %}
-                        <span class="skill-tag">{{ skill.skill_name }}</span>
-                    {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="cv-empty-section">Chưa có thông tin kỹ năng.</p>
-                {% endif %}
+                <div class="skills-list" id="skills-container-preview">
+                    {% if cv.skills %}
+                        {% for skill in cv.skills %}
+                            <span class="skill-tag" data-id="{{ skill.id }}">{{ skill.skill_name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p class="cv-empty-section">Chưa có thông tin kỹ năng.</p>
+                    {% endif %}
+                </div>
             </section>
 
         </div>

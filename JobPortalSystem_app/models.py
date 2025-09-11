@@ -105,6 +105,7 @@ class Resume(BaseModel):
     is_template = db.Column(db.Boolean, default=False, nullable=False)
     template_name = db.Column(db.String(100), nullable=True)  # Tên mẫu, ví dụ "Cổ điển", "Hiện đại"
     thumbnail_url = db.Column(db.String(255), nullable=True)  # URL ảnh xem trước của mẫu
+    layout = db.Column(db.String(50), default='single-column')
     # Một CV có nhiều kinh nghiệm, học vấn, kỹ năng...
     experiences = db.relationship("Experience", backref="resume", lazy=True, cascade="all, delete-orphan")
     educations = db.relationship("Education", backref="resume", lazy=True, cascade="all, delete-orphan")

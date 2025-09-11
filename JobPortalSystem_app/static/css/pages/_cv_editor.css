@@ -1,66 +1,158 @@
-/* /static/css/pages/_cv_editor.css */
-
-/* --- BIẾN CỤC BỘ & LAYOUT CHÍNH --- */
-:root {
-    --editor-sidebar-width: 360px;
-    --editor-header-height: 70px; /* Chiều cao header chính */
-    --editor-panel-header-height: 65px;
+/* Các lớp tiện ích chung */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    padding: 0;
 }
 
+/* --- LAYOUT TỔNG THỂ --- */
 .cv-editor-container {
-    display: grid;
-    grid-template-columns: var(--editor-sidebar-width) 1fr;
-    height: calc(100vh - var(--editor-header-height));
-    overflow: hidden; /* Ngăn cuộn toàn trang */
-}
-
-/* --- CỘT 1: SIDEBAR CÔNG CỤ --- */
-.editor-sidebar {
-    background: #ffffff;
-    border-right: 1px solid var(--border-color);
     display: flex;
-    transition: margin-left 0.3s ease; /* Hiệu ứng trượt */
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
 }
 
-.sidebar-main-nav {
-    width: 60px;
-    background: #f8f9fa;
-    border-right: 1px solid var(--border-color);
+/* --- KHU VỰC CHÍNH (CV PREVIEW & HEADER) --- */
+.editor-main-panel {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 10px 0;
-    gap: 5px;
-    flex-shrink: 0;
+    background-color: var(--bg-light);
+    overflow: hidden;
 }
 
-.nav-back {
-    padding: 15px 0;
-    font-size: 1.2rem;
+.main-header {
+    background: #fff;
+    padding: 0 25px;
+    height: var(--editor-header-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+.editor-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin: 0;
+}
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.status-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    font-style: italic;
     color: var(--subtle-text-color);
-    margin-bottom: 10px;
+    transition: all 0.3s;
+}
+.status-indicator::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+.status-indicator.saving {
+    color: #f59e0b;
+}
+.status-indicator.saving::before {
+    background-color: #f59e0b;
+}
+.status-indicator.saved {
+    color: #48bb78;
+}
+.status-indicator.saved::before {
+    background-color: #48bb78;
+}
+
+/* --- KHU VỰC HIỂN THỊ CV --- */
+.workspace-wrapper {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+.cv-preview-sheet {
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+    padding: 30mm 20mm;
+    transition: box-shadow 0.3s, transform 0.3s;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+.cv-preview-sheet.active {
+    box-shadow: 0 0 0 2px var(--primary-color), 0 5px 25px rgba(0,0,0,0.1);
+}
+
+/* --- SIDEBAR CÔNG CỤ --- */
+.editor-sidebar {
+    width: var(--editor-sidebar-width);
+    background: #ffffff;
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width 0.3s ease;
+}
+.sidebar-main-nav {
+    display: flex;
+    justify-content: center;
+    background: var(--bg-light);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 .nav-tab {
     background: none; border: none;
-    width: 45px; height: 45px;
-    border-radius: 8px; font-size: 1.2rem;
-    cursor: pointer; color: var(--subtle-text-color);
+    padding: 15px 20px;
+    flex-grow: 1;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: var(--subtle-text-color);
     transition: all 0.2s;
-}
-.nav-tab:hover { background: #e5e7eb; }
-.nav-tab.active { background: var(--primary-color); color: white; }
-
-.sidebar-panels {
-    width: calc(var(--editor-sidebar-width) - 60px);
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
 }
+.nav-tab:hover { background: #e5e7eb; }
+.nav-tab.active {
+    color: var(--theme-color);
+    border-bottom: 2px solid var(--theme-color);
+    background-color: white;
+}
+.nav-tab i { font-size: 1.4rem; }
 
+.sidebar-panels {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+}
 .sidebar-panel {
     display: none;
     flex-direction: column;
     height: 100%;
     animation: fadeIn 0.3s;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 .sidebar-panel.active { display: flex; }
 
@@ -71,90 +163,267 @@
     align-items: center;
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
+    background-color: white;
 }
-.panel-header h4 { margin: 0; font-size: 1.2rem; }
-
+.panel-header h4 { margin: 0; font-size: 1.2rem; font-weight: 600; color: var(--text-color); }
 .panel-body {
     padding: 20px;
     flex-grow: 1;
     overflow-y: auto;
+    background-color: var(--bg-light);
 }
 
-/* --- CỘT 2: KHÔNG GIAN LÀM VIỆC --- */
-.editor-workspace {
-    background-color: #f3f4f6;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* Ngăn cuộn */
+/* --- CÁC THÀNH PHẦN TRONG CV --- */
+.cv-header-preview { text-align: center; margin-bottom: 30px; }
+.cv-header-preview h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--theme-color);
+    margin-bottom: 5px;
 }
-
-.workspace-header {
-    background: #fff;
-    padding: 0 25px;
-    height: var(--editor-panel-header-height);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0;
+.cv-header-preview p {
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--subtle-text-color);
+    margin: 0;
 }
-
-#save-status { font-style: italic; color: var(--subtle-text-color); transition: all 0.3s; font-size: 0.9rem; }
-#save-status.saving { color: #f59e0b; }
-#save-status.saved { color: #48BB78; }
-.workspace-actions { display: flex; gap: 10px; }
-
-.workspace-sheet-wrapper {
-    flex-grow: 1;
-    overflow-y: auto; /* Cho phép cuộn CV */
-    padding: 30px;
+.contact-info {
+    font-size: 0.9rem;
+    color: var(--subtle-text-color);
+    margin-top: 10px;
 }
-
-.cv-preview-sheet {
-    width: 210mm;
-    min-height: 297mm;
-    background: white;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-    padding: 20mm;
-    margin: 0 auto;
-    transition: box-shadow 0.3s;
-}
-
-/* --- STYLE TƯƠNG TÁC TRÊN CV --- */
-[contenteditable="true"]:hover {
-    outline: 2px dashed #a0aec0;
-    background-color: #f8f9fa;
-}
-[contenteditable="true"]:focus {
-    outline: 2px solid var(--primary-color);
-    background-color: #e6fffa;
-    box-shadow: 0 0 10px rgba(44, 122, 123, 0.2);
-}
+.contact-info span { margin: 0 10px; }
 
 .cv-section-preview {
     position: relative;
     padding: 10px 0;
+    padding-right: 50px; /* Tăng padding để tạo không gian cho nút */
 }
+.section-title-preview {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--theme-color);
+    border-bottom: 2px solid var(--theme-color);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+/* Các mục có thể chỉnh sửa */
+.cv-item-preview, .cv-header-preview {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    position: relative;
+    padding: 10px;
+    border-radius: 8px;
+}
+.cv-item-preview.active, .cv-header-preview.active {
+    background-color: #e6fffa;
+    outline: 2px solid var(--theme-color);
+}
+.cv-item-preview h3, .cv-item-preview h4 { margin: 0; font-weight: 600; }
+.cv-item-preview p { margin: 5px 0; }
+.cv-item-preview .item-description { font-size: 1rem; }
+.degree-info span { font-style: italic; }
+
+/* Nút thêm/xóa & kéo thả */
 .section-action-bar {
     display: none;
     position: absolute;
-    top: 5px;
-    right: 100%;
-    margin-right: 15px;
+    /* Căn giữa chiều dọc và đặt ở bên phải của phần tiêu đề */
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+
     background: white;
     box-shadow: var(--shadow);
     border-radius: 8px;
     padding: 5px;
     flex-direction: column;
     gap: 5px;
+    z-index: 10; /* Đảm bảo nút này nằm trên các phần tử khác */
 }
+
 .cv-section-preview:hover > .section-action-bar {
     display: flex;
 }
-.action-btn { background: none; border: none; cursor: pointer; width: 32px; height: 32px; border-radius: 6px; font-size: 1rem; color: var(--subtle-text-color); }
-.action-btn:hover { background-color: #e5e7eb; color: var(--text-color); }
+.btn-add-section-item, .handle-sort, .btn-delete-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--subtle-text-color);
+    transition: all 0.2s;
+}
+.btn-add-section-item:hover, .btn-delete-item:hover, .handle-sort:hover {
+    background-color: #f1f5f9;
+    color: var(--text-color);
+}
 
-/* Thêm style cho các mục trong form sidebar */
-.form-section-item { padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e5e7eb; }
-.btn-add-item { width: 100%; padding: 10px; border: 2px dashed #d1d5db; background: #f9fafb; transition: all 0.2s; color: var(--subtle-text-color); }
-.btn-add-item:hover { background: #e5e7eb; border-color: #9ca3af; }
+.sortable-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Kỹ năng */
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.skill-tag {
+    background-color: var(--theme-color);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.skills-tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+.skill-tag-item {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e6fffa;
+    border: 1px solid var(--theme-color);
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: #2D3748; /* Dùng màu chữ chính, đậm hơn */
+
+}
+.skill-tag-item .skill-name {
+    padding-right: 5px;
+    outline: none;
+    cursor: text;
+}
+.skill-tag-item .btn-delete-item {
+    color: var(--theme-color);
+    font-size: 1.2rem;
+    width: 24px;
+    height: 24px;
+    margin-left: 5px;
+}
+.skill-tag-item .btn-delete-item:hover {
+    background-color: #b2f5ea;
+}
+.btn-primary {
+    background-color: var(--theme-color);
+    border-color: var(--theme-color);
+}
+
+/* Hoạt ảnh */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Thêm vào cuối file */
+#design-panel .form-group {
+    margin-bottom: 20px;
+}
+
+#font-family-select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    width: 100%;
+}
+
+#theme-color {
+    width: 100%;
+    height: 40px;
+    padding: 3px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Thêm vào cuối file */
+@media print {
+    body, .cv-preview-sheet {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        box-shadow: none !important;
+    }
+    .cv-preview-sheet {
+        width: 100% !important;
+        min-height: 100vh !important;
+        padding: 20mm 15mm !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    /* Đảm bảo font chữ và màu sắc hiển thị đúng khi in */
+    * {
+        color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Ngăn ngắt trang giữa các section quan trọng */
+    .cv-section-preview {
+        page-break-inside: avoid;
+    }
+
+    /* Style riêng cho header khi in */
+    .cv-header-preview h1 {
+        font-size: 24pt !important;
+        margin-bottom: 5mm !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 15mm 10mm;
+    }
+
+    .cv-preview-sheet {
+        font-size: 11pt !important;
+        line-height: 1.5 !important;
+    }
+
+    .cv-header-preview h1 {
+        font-size: 22pt !important;
+        margin-bottom: 5mm !important;
+    }
+
+    .section-title-preview {
+        font-size: 14pt !important;
+        margin-bottom: 3mm !important;
+    }
+
+    .cv-item-preview {
+        margin-bottom: 4mm !important;
+    }
+
+    .contact-info {
+        margin-top: 3mm !important;
+        font-size: 10pt !important;
+    }
+}
+/* Thêm style cho lớp printing (thêm vào CSS): */
+.printing {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.printing .cv-header-preview {
+    margin-bottom: 15mm;
+}
+
+.printing .cv-section-preview {
+    margin-bottom: 10mm;
+}
+
+.printing .section-title-preview {
+    border-bottom-width: 1px !important;
+    margin-bottom: 5mm !important;
+}

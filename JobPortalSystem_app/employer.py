@@ -11,7 +11,6 @@ from weasyprint import HTML
 employer_bp = Blueprint('employer', __name__)
 
 
-
 @employer_bp.route('/dashboard')
 @login_required
 @recruiter_required
@@ -78,6 +77,7 @@ def post_job():
                            job_types=JobTypeEnum,
                            experience_levels=ExperienceLevelEnum)
 
+
 @employer_bp.route('/cv/<int:cv_id>/download_pdf')
 @login_required
 @recruiter_required
@@ -109,22 +109,26 @@ def view_candidates(job_id):
 # Route mà MoMo sẽ gọi đến server của bạn để báo kết quả (backend-to-backend)
 @employer_bp.route('/momo_ipn', methods=['POST'])
 def momo_ipn():
+    print("\n--- [IPN] MOMO ĐÃ GỌI VÀO ENDPOINT /momo_ipn ---", flush=True)
+
     try:
         data = request.json
+        print(f"--- [IPN] Dữ liệu nhận được: {data}", flush=True) # In ra dữ liệu MoMo gửi
+
         result_code = data.get('resultCode')
         order_id = data.get('orderId')
 
         # TODO: Bắt buộc phải xác thực chữ ký ở môi trường Production
 
         if result_code == 0:  # Giao dịch thành công
-            payment = Payment.query.filter_by(transaction_id=order_id, status=PaymentStatusEnum.PENDING).first()
-            if payment:
+            payment = Payment.query.filter_by(transaction_id=order_id).first()
+            if payment and payment.status == PaymentStatusEnum.PENDING:
                 payment.status = PaymentStatusEnum.COMPLETED
                 job_post = JobPost.query.get(payment.id)
                 if job_post:
                     job_post.active = True
                 db.session.commit()
-                current_app.logger.info(f"Kich hoat thanh cong tin dang ID: {job_post.id}")
+                current_app.logger.info(f"Kích hoạt thành công tin đăng ID: {job_post.id}")
     except Exception as e:
         current_app.logger.error(f"Loi xu ly IPN: {e}")
 
@@ -220,6 +224,7 @@ def preview_candidate_cv(cv_id):
         flash('CV không tồn tại.', 'danger')
         return redirect(url_for('employer.dashboard'))
     return render_template('cv_preview.html', cv=cv)
+
 
 
 @employer_bp.route('/job/<int:job_id>/edit', methods=['GET', 'POST'])
