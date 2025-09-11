@@ -27,9 +27,9 @@ class Config:
         # Development / Production: MySQL
         user = os.getenv('DB_USER', 'root')
         password = os.getenv('DB_PASS', '123123')  # nếu chưa set thì rỗng
-        host = os.getenv('DB_HOST', 'localhost')
+        host = os.getenv('DB_HOST') or 'host.docker.internal' or 'localhost'
         port = os.getenv('DB_PORT', '3306')
-        database = os.getenv('DB_NAME', 'jobportal')
+        database = os.getenv('DB_NAME', 'job_portal_db')
 
         encoded_password = quote_plus(password) if password else ''
 
