@@ -46,9 +46,9 @@ pytest
 
 ## Đóng góp
 Tụi em phân chia công việc rõ ràng mỗi bạn đều có công việc ngang hàng như nhau, có sự hỗ trợ nhau trong quá trình học tập. Nên tỉ lệ công bằng nhất cho chúng em là:
-Nguyễn Thiện Đoan: 33,34%
-Trần Trọng Nhân: 33,33%
-Lương Nguyên Khôi: 33,33%
+- Nguyễn Thiện Đoan: 33,34%
+- Trần Trọng Nhân: 33,33%
+- Lương Nguyên Khôi: 33,33%
 
 ## License
-MIT License
+Bản quyền liên hệ Nguyễn Thiện Đoan, Lương Nguyên Khôi, Trần Trọng Nhân.
