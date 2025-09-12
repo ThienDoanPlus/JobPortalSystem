@@ -1,2 +1,51 @@
-# JobPortalSystem
-Đây là một nền tảng trực tuyến giúp kết nối các ứng viên đang tìm kiếm cơ hội việc làm với các doanh nghiệp có nhu cầu tuyển dụng. Hệ thống cho phép ứng viên tạo hồ sơ, tìm kiếm và ứng tuyển vào các vị trí công việc. Về phía nhà tuyển dụng, hệ thống cung cấp công cụ để đăng tin tuyển dụng và quản lý các hồ sơ ứng tuyển.
+# Job Portal System
+
+Hệ thống quản lý tuyển dụng và ứng viên.
+
+## Mô tả
+Đây là một dự án web cho phép nhà tuyển dụng đăng tin tuyển dụng, ứng viên tạo và quản lý hồ sơ cá nhân, nộp CV, và quản lý quá trình ứng tuyển.
+
+## Tính năng chính
+- Đăng ký, đăng nhập cho ứng viên và nhà tuyển dụng
+- Quản lý thông tin cá nhân, CV
+- Đăng tin tuyển dụng, quản lý công việc
+- Ứng tuyển công việc, theo dõi trạng thái
+- Quản trị hệ thống
+
+## Công nghệ sử dụng
+- Python, Flask
+- SQLAlchemy
+- HTML, CSS, JavaScript
+- Docker, Jenkins (CI/CD)
+
+## Cài đặt
+1. Clone repository:
+	```powershell
+	git clone <repo-url>
+	```
+2. Cài đặt các package Python:
+	```powershell
+	pip install -r requirements.txt
+	```
+3. Chạy ứng dụng:
+	```powershell
+	python run.py
+	```
+
+## Chạy Unit Test
+```powershell
+pytest
+```
+
+## Cấu trúc thư mục
+- `JobPortalSystem_app/` - Source code chính
+- `templates/` - Giao diện HTML
+- `static/` - Tài nguyên tĩnh (CSS, JS, hình ảnh)
+- `migrations/` - Quản lý database migration
+- `tests/` - Unit test
+
+## Đóng góp
+Vui lòng tạo pull request hoặc liên hệ qua email để đóng góp cho dự án.
+
+## License
+MIT License
