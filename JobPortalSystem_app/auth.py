@@ -8,7 +8,6 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Lấy các trường chung
         username = request.form.get('username')
         password = request.form.get('password')
         email = request.form.get('email')
@@ -19,7 +18,6 @@ def register():
             flash('Tên đăng nhập đã tồn tại.', 'danger')
             return render_template('register.html')  # Quay lại form với dữ liệu đã nhập
 
-        # Xử lý theo vai trò
         try:
             role = RoleEnum[role_str.upper()]
             if role == RoleEnum.CANDIDATE:

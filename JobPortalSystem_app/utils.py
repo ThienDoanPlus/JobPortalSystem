@@ -9,9 +9,7 @@ from flask_mail import Message
 import threading
 from . import mail, db
 from .models import Application, RoleEnum
-"""
-    decorator để đảm bảo người dùng đã đăng nhập và có vai trò là RECRUITER.
-"""
+
 def recruiter_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -22,7 +20,6 @@ def recruiter_required(f):
     return decorated_function
 
 def send_async_email(app, msg):
-    """Hàm chạy trong thread để gửi mail mà không block request."""
     with app.app_context():
         try:
             mail.send(msg)
@@ -30,9 +27,6 @@ def send_async_email(app, msg):
             app.logger.error(f"Lỗi khi gửi email: {e}")
 
 def send_application_emails(application_id):
-    """
-    Chuẩn bị và gửi email xác nhận cho cả ứng viên và nhà tuyển dụng dựa trên application_id.
-    """
     app = current_app._get_current_object()
 
     # Truy vấn application với quan hệ 'candidate' và 'job' được tải
