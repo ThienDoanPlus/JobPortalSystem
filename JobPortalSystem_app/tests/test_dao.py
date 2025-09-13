@@ -1,5 +1,3 @@
-# --- START OF FILE JobPortalSystem_app/tests/test_dao.py (Phiên bản Unit Test thực sự) ---
-
 import unittest
 from flask import Flask
 from JobPortalSystem_app import db, dao
@@ -9,19 +7,11 @@ from JobPortalSystem_app.models import User, RoleEnum, CandidateProfile
 class DAOTestCase(unittest.TestCase):
 
     def setUp(self):
-        """
-        Thiết lập một môi trường Flask tối giản, CHỈ ĐỦ để test database.
-        Chúng ta không gọi create_app() để tránh import các blueprint không cần thiết.
-        """
-        # 1. Tạo một instance Flask thủ công
         self.app = Flask(__name__)
-        # 2. Nạp cấu hình testing (quan trọng nhất là chuỗi kết nối DB)
         self.app.config.from_object(TestingConfig)
 
-        # 3. Gắn SQLAlchemy vào app tối giản này
         db.init_app(self.app)
 
-        # 4. Push app context để có thể thao tác với db.session
         self.app_context = self.app.app_context()
         self.app_context.push()
 
@@ -52,8 +42,6 @@ class DAOTestCase(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
-    # --- Các hàm test_* giữ nguyên, chúng sẽ hoạt động đúng trong môi trường mới ---
-
     def test_get_user_by_username_success(self):
         """Kiểm thử lấy user thành công bằng username."""
         user = dao.get_user_by_username(self.test_username)
@@ -83,12 +71,6 @@ class DAOTestCase(unittest.TestCase):
         """Kiểm thử kiểm tra mật khẩu với user là None."""
         is_correct = dao.check_password(None, self.test_password_plain)
         self.assertFalse(is_correct)
-
-    # def test_get_user_by_email_success(self):
-    #     """Kiểm thử lấy user thành công bằng email."""
-    #     user = dao.get_user_by_email(self.test_email)
-    #     self.assertIsNotNone(user)
-    #     self.assertEqual(user.email, self.test_email)
 
 if __name__ == '__main__':
     unittest.main()

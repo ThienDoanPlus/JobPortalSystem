@@ -23,21 +23,18 @@ def allowed_file(filename):
 def profile():
     candidate_profile = dao.get_candidate_profile_by_user_id(current_user.id)
 
-    # Nếu chưa đăng nhập, Flask-Login sẽ tự động chuyển họ về trang login.
     return render_template('profile.html', user=current_user, profile=candidate_profile)
 
 
 @candidate_bp.route('/cv/create', methods=['GET', 'POST'])
 @login_required
 def create_cv():
-    """Chỉ hiển thị trang chọn mẫu CV."""
     cv_templates = Resume.query.filter_by(is_template=True).order_by(Resume.id).all()
     return render_template('cv_create.html', cv_templates=cv_templates)
 
 @candidate_bp.route('/cv/create-from-template/<int:template_id>', methods=['POST'])
 @login_required
 def create_cv_from_template(template_id):
-    """Xử lý việc tạo CV mới khi người dùng chọn một mẫu."""
     candidate_profile = dao.get_candidate_profile_by_user_id(current_user.id)
     if not candidate_profile:
         flash("Không tìm thấy hồ sơ ứng viên.", "danger")
@@ -61,7 +58,6 @@ def create_cv_from_template(template_id):
 @candidate_bp.route('/cv/upload', methods=['POST'])
 @login_required
 def upload_cv():
-    """Route này chỉ chuyên xử lý việc upload file CV có sẵn."""
     if request.method == 'POST':
         title = request.form.get('title')
         cv_file = request.files.get('cv_file')
@@ -99,7 +95,6 @@ def upload_cv():
 @candidate_bp.route('/cvs')
 @login_required
 def manage_cvs():
-    # Lấy profile và sau đó là các CV liên quan
     candidate_profile = dao.get_candidate_profile_by_user_id(current_user.id)
     cv_list = []
     cv_status_map = {}
@@ -119,10 +114,7 @@ def manage_cvs():
 @candidate_bp.route('/cv/<int:cv_id>/edit', methods=['GET']) # Chỉ chấp nhận method GET
 @login_required
 def edit_cv(cv_id):
-    # Lấy CV từ CSDL
     cv = dao.get_cv_by_id(cv_id)
-
-    # Đảm bảo user không thể chỉnh sửa CV của người khác
     if not cv or cv.candidate.user_id != current_user.id:
         flash('CV không tồn tại hoặc bạn không có quyền chỉnh sửa.', 'danger')
         return redirect(url_for('candidate.manage_cvs'))

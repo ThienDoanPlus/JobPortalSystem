@@ -16,7 +16,7 @@ def home():
     # Lấy từ khóa tìm kiếm từ form
     search_keyword = request.args.get('keyword', '')
     search_location = request.args.get('location', '')
-    search_type = request.args.get('search_type', 'all')  # ← Thêm dòng này
+    search_type = request.args.get('search_type', 'all')
 
     # Nếu có tìm kiếm
     if search_keyword or search_location:

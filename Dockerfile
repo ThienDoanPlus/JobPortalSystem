@@ -4,8 +4,7 @@ FROM python:3.13-slim
 # Thiết lập thư mục làm việc bên trong container
 WORKDIR /app
 
-# Cập nhật và cài đặt TẤT CẢ các thư viện hệ thống cần thiết cho WeasyPrint
-# Dựa trên tài liệu chính thức cho Debian/Ubuntu.
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3-dev \
@@ -32,8 +31,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Sao chép toàn bộ mã nguồn của dự án vào container
 COPY . .
 
-# Mở cổng 5000
 EXPOSE 5000
 
-# Lệnh mặc định để chạy ứng dụng khi container khởi động
 CMD ["python", "run.py"]
