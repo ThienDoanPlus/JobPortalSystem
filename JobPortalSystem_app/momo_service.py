@@ -9,9 +9,6 @@ from flask import url_for
 
 
 def create_momo_payment(amount, order_info):
-    """
-    Tạo yêu cầu thanh toán và trả về (URL thanh toán của MoMo, order_id của chúng ta).
-    """
     endpoint = os.getenv('MOMO_ENDPOINT')
 
     partner_code = os.getenv('MOMO_PARTNER_CODE')
@@ -28,7 +25,7 @@ def create_momo_payment(amount, order_info):
             redirect_url = redirect_url.replace("http://127.0.0.1:2004", ngrok_url)
             ipn_url = ipn_url.replace("http://127.0.0.1:2004", ngrok_url)
         else:
-            print("⚠️ CẢNH BÁO: Không tìm thấy NGROK_URL. IPN của MoMo sẽ không hoạt động ở local.")
+            print("CẢNH BÁO: Không tìm thấy NGROK_URL. IPN của MoMo sẽ không hoạt động ở local.")
 
     amount_str = str(int(amount))
     order_id = str(uuid.uuid4())
@@ -36,7 +33,6 @@ def create_momo_payment(amount, order_info):
     request_type = "captureWallet"
     extra_data = ""
 
-    # --- CHỖ QUAN TRỌNG: rawSignature phải đúng thứ tự ---
     raw_signature_str = (
         f"accessKey={access_key}"
         f"&amount={amount_str}"
@@ -70,14 +66,6 @@ def create_momo_payment(amount, order_info):
         'signature': signature
     }
 
-    # --- DEBUG ---
-    print("\n" + "=" * 50)
-    print("CHUẨN BỊ GỬI REQUEST ĐẾN MOMO")
-    print(f"Endpoint: {endpoint}")
-    print("rawSignature:", raw_signature_str)
-    print("Payload (Dữ liệu gửi đi):")
-    print(json.dumps(payload, indent=2, ensure_ascii=False))
-    print("=" * 50 + "\n")
 
     try:
         response = requests.post(endpoint, json=payload, timeout=10)

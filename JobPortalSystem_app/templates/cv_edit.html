@@ -1,68 +1,94 @@
-<!-- /templates/cv_edit.html -->
 {% extends "base.html" %}
 
-{% block title %}Xây dựng CV: {{ cv.title }}{% endblock %}
+{% block title %}Trình chỉnh sửa CV Chuyên nghiệp - {{ cv.title }}{% endblock %}
 
 {% block content %}
 <div class="cv-editor-container">
 
-    <!-- CỘT 1: THANH CÔNG CỤ (SIDEBAR) -->
+    <main class="editor-main-panel">
+        <div class="main-header">
+            <a href="{{ url_for('candidate.manage_cvs') }}" class="btn btn-outline-secondary btn-icon" title="Quay lại">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="editor-title">{{ cv.title }}</h1>
+            <div class="header-actions">
+                <span id="save-status" class="status-indicator saved">Đã lưu</span>
+                <button id="btn-save-cv" class="btn btn-secondary"><i class="fas fa-save"></i> Lưu CV</button>
+                <a href="{{ url_for('candidate.preview_cv', cv_id=cv.id) }}" target="_blank" class="btn btn-outline-primary">
+                    <i class="fas fa-eye"></i> Xem trước
+                </a>
+                <button id="btn-download-pdf" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Tải xuống PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="workspace-wrapper">
+            <div class="workspace-sheet-wrapper">
+                <div id="cv-sheet" class="cv-preview-sheet">
+                    </div>
+            </div>
+        </div>
+    </main>
+
     <aside class="editor-sidebar">
-        <!-- Main Navigation -->
         <nav class="sidebar-main-nav">
-            <a href="{{ url_for('candidate.manage_cvs') }}" class="nav-back" title="Quản lý CV"><i class="fas fa-arrow-left"></i></a>
-            <button class="nav-tab active" data-panel="content-panel" title="Nội dung"><i class="fas fa-file-alt"></i></button>
-            <button class="nav-tab" data-panel="design-panel" title="Thiết kế"><i class="fas fa-palette"></i></button>
-            <button class="nav-tab" data-panel="layout-panel" title="Bố cục"><i class="fas fa-th-large"></i></button>
+            <button class="nav-tab active" data-panel="content-panel" title="Nội dung">
+                <i class="fas fa-file-alt"></i><span>Nội dung</span>
+            </button>
+            <button class="nav-tab" data-panel="design-panel" title="Thiết kế">
+                <i class="fas fa-palette"></i><span>Thiết kế</span>
+            </button>
+            <button class="nav-tab" data-panel="layout-panel" title="Bố cục">
+                <i class="fas fa-th-large"></i><span>Bố cục</span>
+            </button>
         </nav>
 
-        <!-- Panels (sẽ được hiển thị/ẩn bởi JS) -->
         <div class="sidebar-panels">
-            <!-- Panel Nội dung -->
             <div id="content-panel" class="sidebar-panel active">
-                <div class="panel-header">
-                    <!-- SỬA LẠI ĐÂY: Thêm id="form-panel-title" -->
-                    <h4 id="form-panel-title">Nội dung CV</h4>
-                </div>
-                <!-- SỬA LẠI ĐÂY: Đổi tên id cho đúng -->
+                <div class="panel-header"><h4>Nội dung CV</h4></div>
                 <div id="content-form-container" class="panel-body">
-                    <!-- Form chỉnh sửa chi tiết sẽ được JS render vào đây -->
+                    <p class="panel-guide">Chọn một mục trên CV để chỉnh sửa hoặc thêm mục mới.</p>
                 </div>
             </div>
-            <!-- Panel Thiết kế -->
+
             <div id="design-panel" class="sidebar-panel">
-                <div class="panel-header"><h4>Thiết kế & Font</h4></div>
+                <div class="panel-header"><h4>Thiết kế & Phong cách</h4></div>
                 <div class="panel-body">
-                    <div class="form-group"><label>FONT CHỮ</label><select id="font-family-select" class="form-control"><option value="'Roboto', sans-serif">Roboto</option><option value="'Arial', sans-serif">Arial</option><option value="'Times New Roman', serif">Times New Roman</option></select></div>
-                    <div class="form-group"><label>MÀU CHỦ ĐỀ</label><input type="color" id="theme-color" class="form-control"></div>
+                    <div class="form-group">
+                        <label for="font-family-select">Font chữ</label>
+                        <select id="font-family-select" class="form-control">
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                            <option value="'Arial', sans-serif">Arial</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="theme-color">Màu chủ đề</label>
+                        <input type="color" id="theme-color" class="form-control">
+                    </div>
                 </div>
             </div>
-            <!-- Panel Bố cục (Layout) -->
+
             <div id="layout-panel" class="sidebar-panel">
-                 <div class="panel-header"><h4>Bố cục</h4></div>
-                 <div class="panel-body"><p>Tính năng sắp ra mắt.</p></div>
+                <div class="panel-header"><h4>Bố cục CV</h4></div>
+                <div class="panel-body">
+                    <div class="layout-selector">
+                        <div class="layout-option" data-layout="single-column">
+                            <img src="{{ url_for('static', filename='image/layout_single.jpeg') }}" alt="Cổ điển">
+                            <span>Cổ điển (1 cột)</span>
+                        </div>
+                        <div class="layout-option" data-layout="split-column">
+                            <img src="{{ url_for('static', filename='image/layout_split.jpeg') }}" alt="Hiện đại">
+                            <span>Hiện đại (2 cột)</span>
+                        </div>
+                    </div>
+                    <p class="text-muted mt-3">Lưu ý: Thay đổi bố cục có thể ảnh hưởng đến cách hiển thị nội dung của bạn.</p>
+                </div>
             </div>
         </div>
     </aside>
 
-    <!-- CỘT 2: KHÔNG GIAN LÀM VIỆC (CV PREVIEW) -->
-    <main class="editor-workspace">
-        <div class="workspace-header">
-            <!-- SỬA LẠI ĐÂY: Thêm id="save-status" -->
-            <span id="save-status"></span>
-            <div class="workspace-actions">
-                <a href="{{ url_for('candidate.preview_cv', cv_id=cv.id) }}" target="_blank" class="btn btn-secondary">Xem trước</a>
-                <!-- SỬA LẠI ĐÂY: Thêm id="btn-download-pdf" -->
-                <button id="btn-download-pdf" class="btn btn-primary">Lưu & Tải xuống</button>
-            </div>
-        </div>
-        <div class="workspace-sheet-wrapper">
-            <!-- SỬA LẠI ĐÂY: Thêm id="cv-sheet" -->
-            <div id="cv-sheet" class="cv-preview-sheet">
-                <!-- CV "live" sẽ được JS render vào đây -->
-            </div>
-        </div>
-    </main>
 </div>
 {% endblock %}
 

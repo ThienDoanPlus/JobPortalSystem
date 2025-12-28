@@ -25,6 +25,22 @@
                     <h5 class="cv-title">{{ cv.title }}</h5>
                     <p class="cv-meta">Cập nhật: {{ cv.updated_date.strftime('%d/%m/%Y') }}</p>
                 </div>
+<!--                {% set status = cv_status_map[cv.id] %}-->
+<!--                {% if status == 'Đã nhận' or status == 'Đã ứng tuyển' %}-->
+<!--                <span class="btn btn-success btn-sm" style="pointer-events:none;">{{ status }}</span>-->
+<!--                {% elif status == 'Chưa ứng tuyển' %}-->
+<!--                <span class="btn btn-secondary btn-sm" style="pointer-events:none;">{{ status }}</span>-->
+<!--                {% elif status == 'Đã xem' %}-->
+<!--                <span class="btn btn-info btn-sm" style="pointer-events:none;">{{ status }}</span>-->
+<!--                {% elif status == 'Mời phỏng vấn' %}-->
+<!--                <span class="btn btn-warning btn-sm" style="pointer-events:none;">{{ status }}</span>-->
+<!--                {% elif status == 'Từ chối' %}-->
+<!--                <span class="btn btn-danger btn-sm" style="pointer-events:none;">{{ status }}</span>-->
+<!--                {% elif status == 'Mời nhận việc' %}-->
+<!--                <span class="btn btn-primary btn-sm" style="pointer-events:none;">{{ status }}</span>-->
+<!--                {% else %}-->
+<!--                <span class="btn btn-light btn-sm" style="pointer-events:none;">{{ status }}</span>-->
+<!--                {% endif %}-->
                 <div class="cv-card-actions">
                     <a href="{{ url_for('candidate.preview_cv', cv_id=cv.id) }}" class="action-btn view" title="Xem trước">
                         <i class="fas fa-eye"></i>

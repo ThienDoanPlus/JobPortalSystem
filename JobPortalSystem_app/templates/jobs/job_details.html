@@ -1,0 +1,413 @@
+
+<!-- templates/jobs/job_detail.html -->
+{% extends "base.html" %}
+{% block head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap Bundle JS (có Popper luôn) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+{% block title %}{{ job.title }} – {{ job.company.name }}{% endblock %}
+
+{% block content %}
+<div class="job-detail-page">
+    <div class="container py-4">
+        <!-- Company Header -->
+        <div class="job-detail-page__header text-center mb-4">
+            <h1 class="job-detail-page__company-name">{{ job.company.name }}</h1>
+            <p class="job-detail-page__company-location">{{ job.company.location or 'Địa điểm chưa rõ' }}</p>
+        </div>
+
+        <div class="row">
+            <!-- Left Column: Job Info -->
+            <div class="col-lg-7 col-md-7">
+                <div class="job-detail-page__card mb-4">
+                    <h2 class="job-detail-page__job-title">{{ job.title }}</h2>
+                    <div class="job-detail-page__grid mb-3">
+                        <div class="job-detail-page__item">
+                            <i class="fas fa-dollar-sign text-danger"></i>
+                            <div>
+                                <div class="job-detail-page__label">Mức lương</div>
+                                <div class="job-detail-page__value text-danger">
+                                    {% if job.salary_min and job.salary_max %}
+                                    {{ "{:,.0f}".format(job.salary_min) }} – {{ "{:,.0f}".format(job.salary_max) }} VNĐ
+                                    {% else %}Thỏa thuận{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="job-detail-page__item">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                            <div>
+                                <div class="job-detail-page__label">Địa điểm</div>
+                                <div class="job-detail-page__value">{{ job.location }}</div>
+                            </div>
+                        </div>
+                        <div class="job-detail-page__item">
+                            <i class="fas fa-briefcase text-success"></i>
+                            <div>
+                                <div class="job-detail-page__label">Kinh nghiệm</div>
+                                <div class="job-detail-page__value">{{ job.experience_level.value }}</div>
+                            </div>
+                        </div>
+                        <div class="job-detail-page__item">
+                            <i class="fas fa-clock text-info"></i>
+                            <div>
+                                <div class="job-detail-page__label">Hình thức</div>
+                                <div class="job-detail-page__value">{{ job.job_type.value }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-danger px-4" data-bs-toggle="modal"
+                            data-bs-target="#applyJobModal">
+                        <i class="fas fa-paper-plane me-1"></i>Ứng tuyển ngay
+                    </button>
+                </div>
+
+                <!-- Sections: Description / Requirements / Benefits -->
+                <div class="job-detail-page__card mb-4">
+                    <section class="job-detail-page__section">
+                        <h4 class="job-detail-page__section-title">Mô tả công việc</h4>
+                        <div class="job-detail-page__section-body">
+                            {{ job.description | replace('\n', '<br>\n') | safe }}
+                        </div>
+                    </section>
+                    <section class="job-detail-page__section">
+                        <h4 class="job-detail-page__section-title">Yêu cầu ứng viên</h4>
+                        <div class="job-detail-page__section-body">
+                            {{ job.requirements | replace('\n', '<br>\n') | safe }}
+                        </div>
+                    </section>
+                    <section class="job-detail-page__section">
+                        <h4 class="job-detail-page__section-title">Quyền lợi được hưởng</h4>
+                        <div class="job-detail-page__section-body">
+                            {{ job.benefits | replace('\n', '<br>\n') | safe }}
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Right Column: General Info -->
+            <div class="col-lg-5 col-md-5">
+                <div class="job-detail-page__card mb-4">
+                    <h5 class="job-detail-page__small-title">Thông tin chung</h5>
+                    <div class="job-detail-page__info-list">
+                        <div><strong>Công ty:</strong> {{ job.company.name }}</div>
+                        <div><strong>Địa điểm:</strong> {{ job.location }}</div>
+                        <div><strong>Kinh nghiệm:</strong> {{ job.experience_level.value }}</div>
+                        <div><strong>Hạn nộp:</strong>
+                            {{ job.deadline.strftime('%d/%m/%Y') if job.deadline else 'Chưa xác định' }}
+                        </div>
+                        <div><strong>Hình thức:</strong> {{ job.job_type.value }}</div>
+                    </div>
+                </div>
+                <!-- Nơi làm việc -->
+                    <section class="job-detail-page__section">
+                        <h4 class="job-detail-page__section-title" style="color:#0d6efd;">Nơi làm việc</h4>
+                        {% if job.location %}
+                            <!-- Bản đồ Google Maps -->
+                            <div style="width:100%;max-width:700px;margin:auto;">
+                                <iframe
+                                    width="100%"
+                                    height="320"
+                                    frameborder="0"
+                                    style="border:0;border-radius:12px;"
+                                    src="https://www.google.com/maps?q={{ job.location|urlencode }}&output=embed"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                            <div style="margin-top:16px;font-size:1.1em;">
+                                <i class="fas fa-building"></i>
+                                {{ job.location }}
+                            </div>
+                        {% else %}
+                            <div>Chưa cập nhật địa điểm làm việc.</div>
+                        {% endif %}
+                    </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="applyJobModal" tabindex="-1" aria-labelledby="applyJobModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="" id="form-apply-cv" enctype="multipart/form-data">
+                    <input type="hidden" name="_token" value="xjhU8uFjLRGulZXORjIJ0A3N0L2ciZ1ykwFYgi0v">
+                    <input type="hidden" name="ta_source" value="BoxFeatureJob_LinkDetail">
+                    <input type="hidden" name="is_pinned" value="">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="applyJobModalLabel"><strong>Ứng tuyển <span class="text-premium">{{ job.title }}</span></strong>
+                        </h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="new-apply">
+                            <!-- Phần chọn CV online -->
+                            <div id="frm-select-cv-online" style="display: none;">
+                                <div class="text-right" style="margin-bottom: 10px">
+                                    <a href="javascript:showUploadForm()" class="btn btn-sm btn-default"><i
+                                            class="fa fa-upload"></i> Tải lên CV từ máy tính</a>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <label>Chọn CV online: <span
+                                                class="italic text-premium text-small">Khuyên dùng</span></label>
+                                        <div class="card-body">
+                                            {% if cv_list %}
+                                            <p>Bạn có {{ cv_list|length }} hồ sơ. Hãy chọn một hồ sơ ứng tuyển.</p>
+                                            <ul class="list-group">
+                                                {% for cv in cv_list %}
+                                                <li class="list-group-item">
+                                                    <!-- radio button để chọn CV -->
+                                                    <div class="list-group-item-radio"
+                                                        style="display: inline-block; margin-right: 10px;">
+                                                        <input type="radio" name="resume_id" value="{{ cv.id }}"
+                                                            id="cv_{{ cv.id }}"
+                                                            {% if loop.first %}checked{% endif %}>
+                                                    </div>
+                                                    <!-- thông tin CV -->
+                                                    <div class="list-group-item-info" style="display: inline-block;">
+                                                        <label for="cv_{{ cv.id }}"><strong>{{ cv.title
+                                                            }}</strong></label>
+                                                    </div>
+                                                    <!-- các nút hành động -->
+                                                    <div class="list-group-item-actions"
+                                                        style="display: inline-block;">
+                                                        <a href="{{ url_for('candidate.preview_cv', cv_id=cv.id) }}"
+                                                        target="_blank" class="btn-action"
+                                                        title="Xem trước"><i class="fas fa-eye"></i></a>
+                                                        <a href="{{ url_for('candidate.edit_cv', cv_id=cv.id) }}"
+                                                        class="btn-action" title="Chỉnh sửa"><i
+                                                                class="fas fa-edit"></i></a>
+                                                    </div>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% else %}
+                                            <div class="empty-state">
+                                                <div class="empty-state-icon">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </div>
+                                                <h4>Bạn chưa có hồ sơ nào</h4>
+                                                <p>Hãy tạo hồ sơ đầu tiên của bạn để bắt đầu ứng tuyển vào các công việc
+                                                    mơ ước.</p>
+                                                <a href="{{ url_for('candidate.create_cv') }}" class="btn btn-primary">Tạo
+                                                    CV ngay</a>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Thư giới thiệu: </label>
+                                            <textarea name="letter" class="form-control" style="font-size: 12px"
+                                                    rows="3"
+                                                    placeholder="Viết giới thiệu ngắn gọn về bản thân (điểm mạnh, điểm yếu) và nêu rõ mong muốn, lý do làm việc tại công ty này. Đây là cách gây ấn tượng với nhà tuyển dụng nếu bạn có chưa có kinh nghiệm làm việc (hoặc CV không tốt)."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6"></div>
+                                </div>
+                            </div>
+                            <!-- Phần tải lên CV từ máy tính -->
+                            <div class="row">
+                                <div class="col-xs-12" id="frm-upload" style="display: block;">
+                                    <div class="row form-group">
+                                        <div class="col-sm-6 col-xs-12 text-right">
+                                            <a href="javascript:showSelectOnlineCVForm()"
+                                            class="btn-sm btn btn-default"><i class="fa fa-globe"></i> Dùng CV Online</a>
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="jFiler jFiler-theme-dragdropbox">
+                                            <input type="file" name="cv_file" id="filer_input"
+                                                style="display: none; position: absolute; left: -9999px; top: -9999px; z-index: -9999;"
+                                                accept="doc, docx, pdf">
+                                            <div class="jFiler-input-dragDrop">
+                                                <div class="col-sm-6 col-xs-12">
+                                                    <strong class="input-label">Tải lên CV từ máy tính</strong><br>
+                                                    <span class="text-gray text-small">File doc, docx, pdf. Tối đa 10MB.</span>
+                                                </div>
+                                                <div class="jFiler-input-inner">
+                                                    <div class="jFiler-input-icon"><i class="fa fa-upload"></i></div>
+                                                    <input type="file" id="cv_file" name="cv_file" class="form-control"
+                                                        accept=".pdf">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-small text-danger italic error-message cv_fileErrorMessage"
+                                        id="cvFileErrorMessage" style="margin-top: 5px; display: none"></p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Họ và tên<span class="text-danger">*</span> :</label>
+                                        <input type="text" value="" placeholder="Họ tên hiển thị với Nhà tuyển dụng"
+                                            name="fullname" class="form-control input-sm">
+                                        <p class="text-small text-danger italic error-message fullnameErrorMessage"
+                                        id="fullnameErrorMessage" style="margin-top: 5px; display: none"></p>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <div class="form-group">
+                                                <label>Email<span class="text-danger">*</span> :</label>
+                                                <input type="text" value=""
+                                                    placeholder="Email hiển thị với Nhà tuyển dụng" name="email"
+                                                    class="form-control input-sm">
+                                                <p class="text-small text-danger italic error-message emailErrorMessage"
+                                                style="margin-top: 5px; display: none"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <div class="form-group">
+                                                <label>Số điện thoại<span class="text-danger">*</span> :</label>
+                                                <input type="text" value=""
+                                                    placeholder="Số điện thoại hiển thị với Nhà tuyển dụng"
+                                                    name="phone" class="form-control input-sm">
+                                                <p class="text-small text-danger italic error-message phoneErrorMessage"
+                                                style="margin-top: 5px; display: none"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12">
+                                            <div class="form-group align-center">
+                                                <input type="checkbox" name="is_save_cv_upload" class="js-switch"
+                                                    value="0" id="cb-save-cv-upload" data-switchery="true"
+                                                    style="display: none;">
+                                                <span class="switchery switchery-small switchery-default"
+                                                    style="box-shadow: rgb(223, 223, 223) 0px 0px 0px 0px inset; border-color: rgb(223, 223, 223); background-color: rgb(255, 255, 255); transition: border 0.4s, box-shadow 0.4s;">
+                        <small style="left: 0px; transition: background-color 0.4s, left 0.2s;"></small>
+                        </span>
+                                                <span style="margin-left:10px">
+Lưu CV (Dùng để quản lý trong
+<a
+        target="_blank"
+        class="text-highlight"
+        href="{{ url_for('candidate.manage_cvs') }}"
+>Hồ Sơ CV</a>
+và giúp nhà tuyển dụng tiếp cận bạn)
+</span>
+
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Thư giới thiệu: </label>
+                                            <textarea name="letter" class="form-control" style="font-size: 12px"
+                                                    rows="3"
+                                                    placeholder="Viết giới thiệu ngắn gọn về bản thân (điểm mạnh, điểm yếu) và nêu rõ mong muốn, lý do làm việc tại công ty này. Đây là cách gây ấn tượng với nhà tuyển dụng nếu bạn có chưa có kinh nghiệm làm việc (hoặc CV không tốt)."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger px-4" id="btn-apply-submit">Nộp CV</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scoped CSS -->
+    <style>
+        .job-detail-page__card {
+            background: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            padding: 1.5rem;
+        }
+
+        .job-detail-page__header .job-detail-page__company-name {
+            font-size: 2rem;
+            color: #0d6efd;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-detail-page__header .job-detail-page__company-location {
+            color: #6c757d;
+        }
+
+        .job-detail-page__job-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .job-detail-page__grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .job-detail-page__item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .job-detail-page__label {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .job-detail-page__value {
+            font-weight: 500;
+        }
+
+        .job-detail-page__btn-apply {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: #dc3545;
+            color: #fff;
+            border-radius: 0.3rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .job-detail-page__btn-apply:hover {
+            background: #c82333;
+        }
+
+        .job-detail-page__section {
+            margin-bottom: 2rem;
+        }
+
+        .job-detail-page__section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #0d6efd;
+            padding-left: 0.75rem;
+        }
+
+        .job-detail-page__section-body {
+            line-height: 1.7;
+            color: #495057;
+        }
+
+        .job-detail-page__small-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .job-detail-page__info-list div {
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+        a{
+            text-decoration: none;
+            color: #000;
+        }
+    </style>
+</div>
+<div id="job-data-container"
+    style="display: none;"
+    data-has-cv="{{ cv_list|length > 0 }}"
+    data-create-cv-url="{{ url_for('candidate.create_cv') }}"
+    data-apply-url="{{ url_for('main.apply_job', job_id=job.id) }}">
+</div>
+
+<!-- NẠP FILE JAVASCRIPT: Phải đặt SAU cầu nối dữ liệu -->
+<script src="{{ url_for('static', filename='js/apply.js') }}"></script>
+{% endblock %}

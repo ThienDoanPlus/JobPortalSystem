@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Bài đăng của {{ company.name }}{% endblock %}
+{% block content %}
+<div class="company-jobs-container">
+    <h2 class="company-jobs-title">Bài đăng tuyển dụng của {{ company.name }}</h2>
+    {% if jobs %}
+        <div class="company-job-list">
+            {% for job in jobs %}
+                <div class="company-job-card">
+                    <div class="company-job-title">{{ job.title }}</div>
+                    <div class="company-job-meta">
+                        <div class="meta-row">
+                            <span>
+                                <i class="fas fa-map-marker-alt"></i> {{ job.location or 'Chưa cập nhật' }}
+                            </span>
+                            {% if job.salary_min and job.salary_max %}
+                            <span>
+                                <i class="fas fa-money-bill"></i> {{ "{:,.0f}".format(job.salary_min) }} - {{ "{:,.0f}".format(job.salary_max) }} VNĐ
+                            </span>
+                            {% endif %}
+                            <span>
+                                <i class="fas fa-calendar"></i> Hạn: {{ job.deadline.strftime('%d/%m/%Y') if job.deadline else 'Không giới hạn' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="company-job-badges mb-2">
+                        <span class="badge badge-info">{{ job.job_type.value }}</span>
+                        <span class="badge badge-secondary">{{ job.experience_level.value }}</span>
+                    </div>
+                    <div class="company-job-actions">
+                        <a href="{{ url_for('main.job_details', job_id=job.id) }}" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4">Công ty này chưa có bài đăng tuyển dụng nào.</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.company-jobs-container {
+    max-width: 900px;
+    margin: 36px auto 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 32px rgba(0,150,136,0.09), 0 1.5px 6px rgba(0,0,0,0.03);
+    padding: 2.5rem 2rem;
+}
+.company-jobs-title {
+    color: #009688;
+    font-weight: 800;
+    margin-bottom: 2.2rem;
+    text-align: center;
+    font-size: 2rem;
+    letter-spacing: -1px;
+}
+.company-job-list {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+.company-job-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1.5rem 1.2rem;
+    background: #f8fafb;
+    transition: box-shadow 0.18s, border-color 0.18s;
+    box-shadow: 0 2px 12px rgba(0,150,136,0.07);
+}
+.company-job-card:hover {
+    box-shadow: 0 8px 32px rgba(0,150,136,0.13);
+    border-color: #b2dfdb;
+    background: #f1fdfb;
+}
+.company-job-title {
+    font-size: 1.22rem;
+    font-weight: 700;
+    color: #00796b;
+    margin-bottom: 0.4rem;
+}
+.company-job-meta {
+    color: #555;
+    font-size: 1.03em;
+    margin-bottom: 0.5rem;
+}
+.company-job-badges .badge {
+    margin-right: 8px;
+    font-size: 0.98em;
+}
+.company-job-actions {
+    margin-top: 0.7rem;
+}
+.company-job-actions .btn {
+    font-size: 1em;
+    padding: 0.38em 1.2em;
+    border-radius: 7px;
+    font-weight: 600;
+    background: linear-gradient(90deg, #009688 0%, #43cea2 100%);
+    border: none;
+    color: #fff;
+    transition: background 0.18s;
+}
+.company-job-actions .btn:hover {
+    background: linear-gradient(90deg, #43cea2 0%, #009688 100%);
+    color: #fff;
+}
+.company-job-meta .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 64px;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.company-job-meta .meta-row span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.03em;
+    color: #555;
+    white-space: nowrap;
+}
+.company-job-meta i {
+    color: #009688;
+    font-size: 1.08em;
+}
+@media (max-width: 700px) {
+    .company-jobs-container { padding: 1.2rem 0.5rem; }
+    .company-jobs-title { font-size: 1.2rem; }
+}
+</style>
+{% endblock %}

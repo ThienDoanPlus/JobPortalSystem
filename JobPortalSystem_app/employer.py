@@ -11,7 +11,6 @@ from weasyprint import HTML
 employer_bp = Blueprint('employer', __name__)
 
 
-
 @employer_bp.route('/dashboard')
 @login_required
 @recruiter_required
@@ -79,25 +78,57 @@ def post_job():
                            experience_levels=ExperienceLevelEnum)
 
 
+@employer_bp.route('/cv/<int:cv_id>/download_pdf')
+@login_required
+@recruiter_required
+def download_cv_pdf(cv_id):
+    cv = dao.get_cv_by_id(cv_id)
+    if not cv:
+        flash('CV không tồn tại.', 'danger')
+        return redirect(url_for('employer.dashboard'))
+    rendered = render_template('cv_preview.html', cv=cv)
+    pdf = HTML(string=rendered).write_pdf()
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=cv_{cv_id}.pdf'
+    return response
+
+@employer_bp.route('/job/<int:job_id>/candidates')
+@login_required
+@recruiter_required
+def view_candidates(job_id):
+    job = JobPost.query.get_or_404(job_id)
+    applications = job.applications.order_by(db.desc('created_date')).all()
+    return render_template(
+        'employer/job_candidates.html',
+        job=job,
+        applications=applications,
+        status_choices=ApplicationStatusEnum
+    )
+
 # Route mà MoMo sẽ gọi đến server của bạn để báo kết quả (backend-to-backend)
 @employer_bp.route('/momo_ipn', methods=['POST'])
 def momo_ipn():
+    print("\n--- [IPN] MOMO ĐÃ GỌI VÀO ENDPOINT /momo_ipn ---", flush=True)
+
     try:
         data = request.json
+        print(f"--- [IPN] Dữ liệu nhận được: {data}", flush=True) # In ra dữ liệu MoMo gửi
+
         result_code = data.get('resultCode')
         order_id = data.get('orderId')
 
         # TODO: Bắt buộc phải xác thực chữ ký ở môi trường Production
 
         if result_code == 0:  # Giao dịch thành công
-            payment = Payment.query.filter_by(transaction_id=order_id, status=PaymentStatusEnum.PENDING).first()
-            if payment:
+            payment = Payment.query.filter_by(transaction_id=order_id).first()
+            if payment and payment.status == PaymentStatusEnum.PENDING:
                 payment.status = PaymentStatusEnum.COMPLETED
                 job_post = JobPost.query.get(payment.id)
                 if job_post:
                     job_post.active = True
                 db.session.commit()
-                current_app.logger.info(f"Kich hoat thanh cong tin dang ID: {job_post.id}")
+                current_app.logger.info(f"Kích hoạt thành công tin đăng ID: {job_post.id}")
     except Exception as e:
         current_app.logger.error(f"Loi xu ly IPN: {e}")
 
@@ -194,33 +225,7 @@ def preview_candidate_cv(cv_id):
         return redirect(url_for('employer.dashboard'))
     return render_template('cv_preview.html', cv=cv)
 
-@employer_bp.route('/cv/<int:cv_id>/download_pdf')
-@login_required
-@recruiter_required
-def download_cv_pdf(cv_id):
-    cv = dao.get_cv_by_id(cv_id)
-    if not cv:
-        flash('CV không tồn tại.', 'danger')
-        return redirect(url_for('employer.dashboard'))
-    rendered = render_template('cv_preview.html', cv=cv)
-    pdf = HTML(string=rendered).write_pdf()
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'attachment; filename=cv_{cv_id}.pdf'
-    return response
 
-@employer_bp.route('/job/<int:job_id>/candidates')
-@login_required
-@recruiter_required
-def view_candidates(job_id):
-    job = JobPost.query.get_or_404(job_id)
-    applications = job.applications.order_by(db.desc('created_date')).all()
-    return render_template(
-        'employer/job_candidates.html',
-        job=job,
-        applications=applications,
-        status_choices=ApplicationStatusEnum
-    )
 
 @employer_bp.route('/job/<int:job_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -257,4 +262,17 @@ def delete_job(job_id):
     flash('Đã xoá bài đăng thành công!', 'success')
     return redirect(url_for('employer.dashboard'))
 
-
+@employer_bp.route('/stats')
+@login_required
+@recruiter_required
+def stats():
+    company = current_user.recruiter_profile
+    jobs = JobPost.query.filter_by(company_id=company.id).all()
+    # Tạo dict: job_id -> số lượng ứng viên
+    stats_data = []
+    for job in jobs:
+        stats_data.append({
+            'job': job,
+            'app_count': job.applications.count()
+        })
+    return render_template('employer/stats.html', stats_data=stats_data)

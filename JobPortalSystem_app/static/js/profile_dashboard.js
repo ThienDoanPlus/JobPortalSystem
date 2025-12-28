@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const navItems = document.querySelectorAll('.dashboard-nav .nav-item');
     const tabPanes = document.querySelectorAll('.dashboard-content .tab-pane');
 
+
+
     // --- XỬ LÝ CHUYỂN TAB ---
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
@@ -115,5 +117,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // (Code xử lý modal chỉnh sửa hồ sơ của bạn có thể đặt ở đây)
+    // ===  XỬ LÝ MODAL CHỈNH SỬA HỒ SƠ ===
+    const editProfileBtn = document.getElementById('btn-edit-profile');
+    const modal = document.getElementById('edit-profile-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const editForm = document.getElementById('edit-profile-form');
+    const formMessage = document.getElementById('form-message');
+
+    // 1. Mở modal khi nhấn nút "Chỉnh sửa hồ sơ"
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', () => {
+            modal.style.display = 'block';
+        });
+    }
+
+    // 2. Đóng modal khi nhấn nút (x)
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+
+    // 3. Đóng modal khi nhấn ra ngoài vùng pop-up
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // 4. Xử lý khi người dùng nhấn "Lưu thay đổi"
+    if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Ngăn form tải lại trang
+            formMessage.textContent = 'Đang lưu...';
+
+            const formData = new FormData(editForm);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                // Gửi dữ liệu đến API bằng method PUT
+                const response = await fetch('/api/candidate/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || 'Có lỗi xảy ra.');
+                }
+
+                // Nếu thành công:
+                // a. Cập nhật lại thông tin trên trang mà không cần reload
+                document.getElementById('profile-fullname').textContent = data.full_name;
+                document.getElementById('info-fullname').textContent = data.full_name;
+                document.getElementById('info-phone').textContent = data.phone_number || 'Chưa cập nhật';
+                document.getElementById('info-address').textContent = data.address || 'Chưa cập nhật';
+
+                // b. Đóng modal và thông báo
+                formMessage.textContent = '';
+                modal.style.display = 'none';
+                alert('Cập nhật thông tin thành công!');
+
+            } catch (error) {
+                formMessage.innerHTML = `<p style="color: red;">${error.message}</p>`;
+            }
+        });
+    }
 });
